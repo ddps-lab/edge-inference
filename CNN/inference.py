@@ -1,8 +1,6 @@
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
 from tensorflow.keras.preprocessing import image
-from tensorflow.keras.applications.mobilenet import preprocess_input, decode_predictions
 import numpy as np
 import pandas as pd
 import shutil
@@ -12,24 +10,36 @@ import json
 import os
 import argparse
 
+from tensorflow.keras.applications import ( 
+        mobilenet,
+        mobilenet_v2,
+        inception_v3
+        )
 
-print(tf.__version__) 
+models = {
+        'mobilenet':mobilenet,
+        'mobilenet_v2':mobilenet_v2,
+        'inception_v3':inception_v3
+        }
 
-temp = tf.zeros([8, 224, 224, 3])
-_ = tf.keras.applications.mobilenet.preprocess_input(temp)
+models_detail = {
+        'mobilenet':mobilenet.MobileNet(weights='imagenet'),
+        'mobilenet_v2':mobilenet_v2.MobileNetV2(weights='imagenet'),
+        'inception_v3':inception_v3.InceptionV3(weights='imagenet',include_top=False)
+        }
+
 
 results = None
 parser = argparse.ArgumentParser()
 parser.add_argument('--batchsize', default=1, type=int)
-parser.add_argument('--load_model',default=False , type=bool)
+parser.add_argument('--model', default='mobilenet', type=str)
 args = parser.parse_args()
 batch_size = args.batchsize
-load_model = args.load_model
-# batch_size = 8
+load_model = args.model
 
 
 def load_save_model(saved_model_dir = 'mobilenet_saved_model'):
-    model = MobileNetV2(weights='imagenet')
+    model = models_detail[load_model]
     shutil.rmtree(saved_model_dir, ignore_errors=True)
     model.save(saved_model_dir, include_optimizer=False, save_format='tf')
 
@@ -87,7 +97,8 @@ def get_dataset(batch_size, use_cache=False):
     
     return dataset
     
-saved_model_dir = 'mobilenet_saved_model' 
+
+saved_model_dir = f'{load_model}_saved_model'
 if load_model : 
     load_save_model(saved_model_dir)
 
