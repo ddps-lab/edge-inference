@@ -34,13 +34,13 @@ results = None
 parser = argparse.ArgumentParser()
 parser.add_argument('--batchsize', default=1, type=int)
 parser.add_argument('--model', default='mobilenet', type=str)
-#parser.add_argument('--tf',default=False, type=bool)
+parser.add_argument('--case', type=str, required=True)
 parser.add_argument('--quantization',default='FP32',type=str)
 parser.add_argument('--engines',default=1, type=int)
 args = parser.parse_args()
 batch_size = args.batchsize
 model = args.model
-#tf=args.tf
+case=args.case
 quantization = args.quantization
 num_engines=args.engines
 
@@ -105,10 +105,17 @@ def get_dataset(batch_size, use_cache=False):
     return dataset
     
 
+def calibrate_fn(n_calib, batch_size, dataset):
+    for i, (calib_image, _, _) in enumerate(dataset):
+        if i > n_calib // batch_size:
+            break
+        yield (calib_image,)
+
 
 
 def build_FP_tensorrt_engine(model, quantization, batch_size):
 
+    dataset = get_dataset(batch_size)
 
     if quantization == 'FP32':
         conversion_params = trt.DEFAULT_TRT_CONVERSION_PARAMS._replace(
@@ -134,8 +141,8 @@ def build_FP_tensorrt_engine(model, quantization, batch_size):
     
     if quantization=='INT8':
         n_calib=50
-        converter.convert(calibration_input_fn=partial(calibrate_fn, n_calib, batch_size, 
-                                                       dataset.shuffle(buffer_size=n_calib, reshuffle_each_iteration=True)))
+        converter.convert(calibration_input_fn=partial(calibrate_fn, n_calib, batch_size, dataset.shuffle(buffer_size=n_calib, reshuffle_each_iteration=True)))
+
     else:
         converter.convert()
         
@@ -238,6 +245,9 @@ saved_model_dir = f'{model}_saved_model'
 if model :
     load_save_model(model, saved_model_dir)
 
-#predict_GPU(batch_size,saved_model_dir)
-trt_compiled_model_dir = build_FP_tensorrt_engine(model, quantization, batch_size)
-predict_trt(trt_compiled_model_dir, quantization, batch_size)
+if case == 'tf' :
+    predict_GPU(batch_size,saved_model_dir)
+
+elif case == 'trt' :
+    trt_compiled_model_dir = build_FP_tensorrt_engine(model, quantization, batch_size)
+    predict_trt(trt_compiled_model_dir, quantization, batch_size)
