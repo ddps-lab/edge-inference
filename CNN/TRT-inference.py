@@ -6,7 +6,6 @@ import shutil
 import requests
 from functools import partial
 import argparse
-
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.python.saved_model import tag_constants, signature_constants
@@ -40,14 +39,14 @@ parser.add_argument('--quantization',default='FP32',type=str)
 parser.add_argument('--engines',default=1, type=int)
 args = parser.parse_args()
 batch_size = args.batchsize
-load_model = args.model
+model = args.model
 #tf=args.tf
 quantization = args.quantization
 num_engines=args.engines
 
 
-def load_save_model(load_model, saved_model_dir = 'mobilenet_saved_model'):
-    model = models_detail[load_model]
+def load_save_model(model, saved_model_dir = 'mobilenet_saved_model'):
+    model = models_detail[model]
     shutil.rmtree(saved_model_dir, ignore_errors=True)
     model.save(saved_model_dir, include_optimizer=False, save_format='tf')
 
@@ -106,14 +105,9 @@ def get_dataset(batch_size, use_cache=False):
     return dataset
     
 
-def calibrate_fn(n_calib, batch_size, dataset):
-    for i, (calib_image, _, _) in enumerate(dataset):
-        if i > n_calib // batch_size:
-            break
-        yield (calib_image,)
 
 
-def build_FP_tensorrt_engine(load_model, quantization, batch_size):
+def build_FP_tensorrt_engine(model, quantization, batch_size):
 
 
     if quantization == 'FP32':
@@ -135,7 +129,7 @@ def build_FP_tensorrt_engine(load_model, quantization, batch_size):
                                                         use_calibration=True)
 
     
-    converter = trt.TrtGraphConverterV2(input_saved_model_dir=f'{load_model}_saved_model',
+    converter = trt.TrtGraphConverterV2(input_saved_model_dir=f'{model}_saved_model',
                                         conversion_params=conversion_params)
     
     if quantization=='INT8':
@@ -145,10 +139,8 @@ def build_FP_tensorrt_engine(load_model, quantization, batch_size):
     else:
         converter.convert()
         
-    trt_compiled_model_dir = f'{load_model}_saved_models_{quantization}'
+    trt_compiled_model_dir = f'{model}_saved_models_{quantization}'
     converter.save(output_saved_model_dir=trt_compiled_model_dir)
-
-    print(f'\nOptimized for {quantization} and batch size {batch_size}, directory:{trt_compiled_model_dir}\n')
 
     return trt_compiled_model_dir
 
@@ -218,11 +210,11 @@ def predict_trt(trt_compiled_model_dir, quantization, batch_size):
     walltime_start = time.time()
     for i, (validation_ds, batch_labels, _) in enumerate(dataset):
         start_time = time.time()
-        pred_prob_keras = model_trt(validation_ds)
+        trt_results = model_trt(validation_ds)
         iter_times.append(time.time() - start_time)
 
         actual_labels.extend(label for label_list in batch_labels.numpy() for label in label_list)
-        pred_labels.extend(list(np.argmax(pred_prob_keras, axis=1)))
+        pred_labels.extend(list(tf.argmax(trt_results['predictions'], axis=1).numpy()))
 
         if i*batch_size >= display_threshold:
             display_threshold+=display_every
@@ -242,10 +234,10 @@ def predict_trt(trt_compiled_model_dir, quantization, batch_size):
     print('FPS(inf) =', 1000 / np.sum(iter_times))
 
 
-saved_model_dir = f'{load_model}_saved_model'
-if load_model :
-    load_save_model(load_model, saved_model_dir)
+saved_model_dir = f'{model}_saved_model'
+if model :
+    load_save_model(model, saved_model_dir)
 
 #predict_GPU(batch_size,saved_model_dir)
-trt_compiled_model_dir = build_FP_tensorrt_engine(load_model, quantization, batch_size)
+trt_compiled_model_dir = build_FP_tensorrt_engine(model, quantization, batch_size)
 predict_trt(trt_compiled_model_dir, quantization, batch_size)
