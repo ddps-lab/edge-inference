@@ -1,7 +1,6 @@
 import os
 import time
 import numpy as np
-import pandas as pd
 import shutil
 import requests
 from functools import partial
@@ -152,7 +151,7 @@ def build_FP_tensorrt_engine(model, quantization, batch_size):
     return trt_compiled_model_dir
 
 
-def predict_GPU(batch_size,saved_model_dir):
+def predict_tf(batch_size,saved_model_dir):
     
     model_load_time = time.time()
     model = tf.keras.models.load_model(saved_model_dir)
@@ -169,7 +168,7 @@ def predict_GPU(batch_size,saved_model_dir):
     dataset = get_dataset(batch_size)
     dataset_load_time = time.time() - dataset_load_time
     
-    walltime_start = time.time()
+    iftime_start = time.time()
     for i, (validation_ds, batch_labels, _) in enumerate(dataset):
         start_time = time.time()
         pred_prob_keras = model(validation_ds)
@@ -190,10 +189,10 @@ def predict_GPU(batch_size,saved_model_dir):
     print('accuracy =', acc_keras_gpu)
     print('model_load_time =', model_load_time)
     print('dataset_load_time =', dataset_load_time)
-    print('wall_time =', time.time() - walltime_start)
+    print('inference_time =', time.time() - iftime_start)
     print('inference_time(avg) =', np.sum(iter_times)/len(iter_times))
-    print('FPS =', 1000 / (model_load_time + dataset_load_time + (time.time() - walltime_start)))
-    print('FPS(inf) =', 1000 / np.sum(iter_times))
+    print('IPS =', len(iter_times) / (model_load_time + dataset_load_time + (time.time() - iftime_start)))
+    print('IPS(inf) =', len(iter_times) / np.sum(iter_times))
 
 
 def predict_trt(trt_compiled_model_dir, quantization, batch_size):
@@ -214,7 +213,7 @@ def predict_trt(trt_compiled_model_dir, quantization, batch_size):
     dataset = get_dataset(batch_size)
     dataset_load_time = time.time() - dataset_load_time
 
-    walltime_start = time.time()
+    iftime_start = time.time()
     for i, (validation_ds, batch_labels, _) in enumerate(dataset):
         start_time = time.time()
         trt_results = model_trt(validation_ds)
@@ -235,10 +234,10 @@ def predict_trt(trt_compiled_model_dir, quantization, batch_size):
     print('accuracy =', acc_keras_gpu)
     print('model_load_time =', model_load_time)
     print('dataset_load_time =', dataset_load_time)
-    print('wall_time =', time.time() - walltime_start)
+    print('inference_time =', time.time() - iftime_start)
     print('inference_time(avg) =', np.sum(iter_times)/len(iter_times))
-    print('FPS =', 1000 / (model_load_time + dataset_load_time + (time.time() - walltime_start)))
-    print('FPS(inf) =', 1000 / np.sum(iter_times))
+    print('IPS =', 1000 / (model_load_time + dataset_load_time + (time.time() - iftime_start)))
+    print('IPS(inf) =', 1000 / np.sum(iter_times))
 
 
 saved_model_dir = f'{model}_saved_model'
@@ -246,7 +245,7 @@ if model :
     load_save_model(model, saved_model_dir)
 
 if case == 'tf' :
-    predict_GPU(batch_size,saved_model_dir)
+    predict_tf(batch_size,saved_model_dir)
 
 elif case == 'trt' :
     trt_compiled_model_dir = build_FP_tensorrt_engine(model, quantization, batch_size)
