@@ -25,7 +25,7 @@ models = {
 models_detail = {
         'mobilenet':mobilenet.MobileNet(weights='imagenet'),
         'mobilenet_v2':mobilenet_v2.MobileNetV2(weights='imagenet'),
-        'inception_v3':inception_v3.InceptionV3(weights='imagenet',include_top=False)
+        'inception_v3':inception_v3.InceptionV3(weights='imagenet')
         }
 
 
@@ -36,12 +36,14 @@ parser.add_argument('--model', default='mobilenet', type=str)
 parser.add_argument('--case', type=str, required=True)
 parser.add_argument('--quantization',default='FP32',type=str)
 parser.add_argument('--engines',default=1, type=int)
+parser.add_argument('--img_size',default=224, type=int)
 args = parser.parse_args()
 batch_size = args.batchsize
 model = args.model
 case=args.case
 quantization = args.quantization
 num_engines=args.engines
+img_size=args.img_size
 
 
 def load_save_model(model, saved_model_dir = 'mobilenet_saved_model'):
@@ -80,7 +82,7 @@ def val_preprocessing(record):
     new_width = tf.cast(tf.math.rint(width * scale), tf.int32)
     
     image = tf.image.resize(image, [new_height, new_width], method='bicubic')
-    image = tf.image.resize_with_crop_or_pad(image, 224, 224)
+    image = tf.image.resize_with_crop_or_pad(image, img_size, img_size)
     
     image = tf.keras.applications.mobilenet.preprocess_input(image)
     
