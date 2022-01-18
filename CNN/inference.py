@@ -238,8 +238,8 @@ def predict_trt(trt_compiled_model_dir, quantization, batch_size):
     print('dataset_load_time =', dataset_load_time)
     print('inference_time =', time.time() - iftime_start)
     print('inference_time(avg) =', np.sum(iter_times)/len(iter_times))
-    print('IPS =', 1000 / (model_load_time + dataset_load_time + (time.time() - iftime_start)))
-    print('IPS(inf) =', 1000 / np.sum(iter_times))
+    print('IPS =', len(iter_times) / (model_load_time + dataset_load_time + (time.time() - iftime_start)))
+    print('IPS(inf) =', len(iter_times) / np.sum(iter_times))
 
 
 saved_model_dir = f'{model}_saved_model'
