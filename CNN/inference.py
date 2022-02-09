@@ -9,12 +9,24 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.python.saved_model import tag_constants, signature_constants
 from tensorflow.python.compiler.tensorrt import trt_convert as trt
+import psutil
+
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+  tf.config.experimental.set_virtual_device_configuration(gpus[0],
+        [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=0.18*1024)])
+
+  print("1:", psutil.virtual_memory())
+
 
 from tensorflow.keras.applications import ( 
         mobilenet,
         mobilenet_v2,
         inception_v3
         )
+
+print("2:", psutil.virtual_memory())
+
 
 models = {
         'mobilenet':mobilenet,
@@ -154,11 +166,14 @@ def build_FP_tensorrt_engine(model, quantization, batch_size):
 
 
 def predict_tf(batch_size,saved_model_dir):
-    
+   
+    print("3:", psutil.virtual_memory())
     model_load_time = time.time()
     model = tf.keras.models.load_model(saved_model_dir)
     model_load_time = time.time() - model_load_time
-    
+    print("4:", psutil.virtual_memory())
+
+
     display_every = 5000
     display_threshold = display_every
     
@@ -166,16 +181,19 @@ def predict_tf(batch_size,saved_model_dir):
     actual_labels = []
     iter_times = []
     
+    print("5:", psutil.virtual_memory())
     dataset_load_time = time.time()
     dataset = get_dataset(batch_size)
     dataset_load_time = time.time() - dataset_load_time
-    
+    print("6:", psutil.virtual_memory())
+
+
     iftime_start = time.time()
     for i, (validation_ds, batch_labels, _) in enumerate(dataset):
         start_time = time.time()
         pred_prob_keras = model(validation_ds)
         iter_times.append(time.time() - start_time)
-        
+
         actual_labels.extend(label for label_list in batch_labels.numpy() for label in label_list)
         pred_labels.extend(list(np.argmax(pred_prob_keras, axis=1)))
         
@@ -185,6 +203,7 @@ def predict_tf(batch_size,saved_model_dir):
     iter_times = np.array(iter_times)
     acc_keras_gpu = np.sum(np.array(actual_labels) == np.array(pred_labels))/len(actual_labels)
     
+    print("7:", psutil.virtual_memory())
     
     print('***** TF-FP32 matric *****')
     print('user_batch_size =', batch_size)
