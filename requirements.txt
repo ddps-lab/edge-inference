@@ -17,3 +17,5 @@ tqdm>=4.41.0
 torch>=1.10.2
 torchvision>=0.11.3
 thop>=0.0.31.post2005241907
+psutil>=5.9.0
+wget>=3.2
