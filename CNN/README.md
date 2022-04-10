@@ -30,6 +30,6 @@
 - COCO 2017 dataset 5000 download
     
     ```bash
-    python3 ./dataset/COCO 2017/val_dataset.py
-    unzip -q coco2017val.zip -d ../datasets && rm coco2017val.zip
+    python3 ./dataset/COCO_2017/val_dataset.py
+    unzip -q coco2017val.zip -d ./datasets && rm coco2017val.zip
     ```
