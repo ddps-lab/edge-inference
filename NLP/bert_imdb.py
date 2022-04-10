@@ -200,7 +200,7 @@ def preprocess_and_save_data(saved_dataset_dir):
 
 
 # 저장되어있는 모델이 없다면, 모델을 새롭게 훈련한 뒤 저장
-def train_and_save_model(saved_dataset_dir, saved_model_dir):
+def train_and_save_model(saved_model_dir):
   
   global model
   global x_train
@@ -329,7 +329,7 @@ saved_model_dir=f'./model/{model_name}_model'
 # preprocess_and_save_data(saved_dataset_dir)
 
 # 저장되어있는 모델이 없다면, 모델을 새롭게 훈련한 뒤 저장
-train_and_save_model(saved_dataset_dir, saved_model_dir)
+train_and_save_model(saved_model_dir)
 
 # 저장되어있는 모델이 있다면, 로드
 load_model(saved_model_dir)
