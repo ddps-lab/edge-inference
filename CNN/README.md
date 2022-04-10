@@ -31,4 +31,5 @@
     
     ```bash
     python3 ./dataset/COCO 2017/val_dataset.py
+    unzip -q coco2017val.zip -d ../datasets && rm coco2017val.zip
     ```
