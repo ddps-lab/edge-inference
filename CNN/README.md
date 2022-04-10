@@ -1,3 +1,5 @@
+### Image Classification
+
 - ImageNet dataset 1000, 50000 download
     
     ```bash
@@ -20,4 +22,13 @@
     
     ```bash
         python3 ic_inference.py --batchsize=1 --model=inception_v3 --case=tf --quantization=FP32 --engines=1 --img_size=299
+    ```
+
+### Object Detection
+
+
+- COCO 2017 dataset 50000 download
+    
+    ```bash
+    python3 ./dataset/COCO 2017/val_dataset.py
     ```
