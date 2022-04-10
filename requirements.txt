@@ -1,0 +1,19 @@
+# pip3 install -r requirements.txt
+
+# CNN ----------------------------------------
+Pillow>=7.1.2
+scikit-build>=0.14.1
+Pillow-PIL>=0.1.dev0
+pip>=21.3.1
+
+matplotlib>=3.2.2
+scipy>=1.4.1
+pandas>=1.1.4
+seaborn>=0.11.0
+PyYAML>=5.3.1
+
+opencv-python>=4.1.2
+tqdm>=4.41.0
+torch>=1.10.2
+torchvision>=0.11.3
+thop>=0.0.31.post2005241907
