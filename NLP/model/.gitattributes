@@ -1,0 +1,5 @@
+bert_imdb_model/variables/variables.data-00000-of-00001 filter=lfs diff=lfs merge=lfs -text
+bert_imdb_model/keras_metadata.pb filter=lfs diff=lfs merge=lfs -text
+bert_imdb_model/saved_model.pb filter=lfs diff=lfs merge=lfs -text
+bert_imdb_model/variables/variables.index filter=lfs diff=lfs merge=lfs -text
+bert_imdb_model/ filter=lfs diff=lfs merge=lfs -text
