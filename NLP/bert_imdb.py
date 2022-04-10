@@ -326,7 +326,7 @@ saved_dataset_dir=f'./dataset/{model_name}_dataset'
 saved_model_dir=f'./model/{model_name}_model'
 
 # 저장되어있는 데이터가 없다면, 데이터를 전처리한 뒤 저장
-preprocess_and_save_data(saved_dataset_dir)
+# preprocess_and_save_data(saved_dataset_dir)
 
 # 저장되어있는 모델이 없다면, 모델을 새롭게 훈련한 뒤 저장
 # train_and_save_model(saved_model_dir)
