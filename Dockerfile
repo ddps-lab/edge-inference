@@ -1,5 +1,3 @@
-# docker pull nvcr.io/nvidia/l4t-tensorflow:r32.6.1-tf2.5-py3
-
 FROM nvcr.io/nvidia/l4t-tensorflow:r32.6.1-tf2.5-py3 
 
 RUN apt-get update && apt-get install -y git \
