@@ -33,3 +33,9 @@
     python3 ./dataset/COCO_2017/val_dataset.py
     unzip -q coco2017val.zip -d ./datasets && rm coco2017val.zip
     ```
+
+- Object Detection model inference (YOLO V5)
+
+    ```bash
+    python3 ob_inference.py --weights ./CNN/model/yolo_v5_model/yolov5s_saved_model --data ./CNN/dataset/COCO_2017/coco.yaml --img 640 --iou 0.65 --half --task val
+    ```
