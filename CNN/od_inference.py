@@ -1,9 +1,8 @@
 import argparse
+import time
 import json
 import os
 import sys
-import time
-
 from pathlib import Path
 from threading import Thread
 
@@ -11,11 +10,6 @@ import numpy as np
 import torch
 from tqdm.auto import tqdm
 
-FILE = Path(__file__).resolve()
-ROOT = FILE.parents[0]  # YOLOv5 root directory
-if str(ROOT) not in sys.path:
-    sys.path.append(str(ROOT))  # add ROOT to PATH
-ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
 from models.common import DetectMultiBackend
 from utils.callbacks import Callbacks
@@ -28,6 +22,8 @@ from utils.plots import output_to_target, plot_images, plot_val_study
 from utils.torch_utils import select_device, time_sync
 
 
+
+
 def process_batch(detections, labels, iouv):
     correct = torch.zeros(detections.shape[0], iouv.shape[0], dtype=torch.bool, device=iouv.device)
     iou = box_iou(labels[:, 1:], detections[:, :4])
@@ -37,6 +33,7 @@ def process_batch(detections, labels, iouv):
         if x[0].shape[0] > 1:
             matches = matches[matches[:, 2].argsort()[::-1]]
             matches = matches[np.unique(matches[:, 1], return_index=True)[1]]
+            # matches = matches[matches[:, 2].argsort()[::-1]]
             matches = matches[np.unique(matches[:, 0], return_index=True)[1]]
         matches = torch.from_numpy(matches).to(iouv.device)
         correct[matches[:, 1].long()] = matches[:, 2:3] >= iouv
@@ -56,73 +53,66 @@ def run(
         single_cls=False,  # treat as single-class dataset
         augment=False,  # augmented inference
         verbose=False,  # verbose output
-        save_txt=False,  # save results to *.txt
-        save_hybrid=False,  # save label+prediction hybrid results to *.txt
-        save_conf=False,  # save confidences in --save-txt labels
-        save_json=False,  # save a COCO-JSON results file
-        project=ROOT / 'runs/val',  # save to project/name
-        name='exp',  # save to project/name
-        exist_ok=False,  # existing project/name ok, do not increment
         half=True,  # use FP16 half-precision inference
         dnn=False,  # use OpenCV DNN for ONNX inference
         model=None,
         dataloader=None,
-        save_dir=Path(''),
         plots=True,
         callbacks=Callbacks(),
         compute_loss=None,
 ):
-    # Initialize/load model and set device
+
     device = select_device(device, batch_size=batch_size)
 
-
-    # Load model
+    model_load_time = time.time()
     model = DetectMultiBackend(weights, device=device, dnn=dnn, data=data, fp16=half)
-    stride = model.stride
+    model_load_time = time.time() - model_load_time
+    stride, pt, jit, engine = model.stride, model.pt, model.jit, model.engine
     imgsz = check_img_size(imgsz, s=stride)  # check image size
     half = model.fp16  # FP16 supported on limited backends with CUDA
     device = model.device
     batch_size = 1  # export.py models default to batch-size 1
-    LOGGER.info(f'Forcing --batch-size 1 square inference (1,3,{imgsz},{imgsz}) for non-PyTorch models')
 
-    # Data
     data = check_dataset(data)  # check
+    
 
     # Configure
     model.eval()
     cuda = device.type != 'cpu'
     is_coco = isinstance(data.get('val'), str) and data['val'].endswith('coco/val2017.txt')  # COCO dataset
-    nc = int(data['nc'])  # number of classes
+    nc = 1 if single_cls else int(data['nc'])  # number of classes
     iouv = torch.linspace(0.5, 0.95, 10, device=device)  # iou vector for mAP@0.5:0.95
     niou = iouv.numel()
 
     # Dataloader
     model.warmup(imgsz=(batch_size, 3, imgsz, imgsz))  # warmup
-    pad = 0.5
-    rect = False   # square inference for benchmarks
+    pad =0.5
+    rect = False # square inference for benchmarks
     task = 'val'  # path to train/val/test images
+    dataset_load_time = time.time()
     dataloader = create_dataloader(data[task],
-                                    imgsz,
-                                    batch_size,
-                                    stride,
-                                    single_cls,
-                                    pad=pad,
-                                    rect=rect,
-                                    workers=workers,
-                                    prefix=colorstr(f'{task}: '))[0]
+                                       imgsz,
+                                       batch_size,
+                                       stride,
+                                       single_cls,
+                                       pad=pad,
+                                       rect=rect,
+                                       workers=workers,
+                                       prefix=colorstr(f'{task}: '))[0]
 
+    dataset_load_time = time.time() - dataset_load_time
     seen = 0
     confusion_matrix = ConfusionMatrix(nc=nc)
     names = {k: v for k, v in enumerate(model.names if hasattr(model, 'names') else model.module.names)}
-    class_map = coco80_to_coco91_class() if is_coco else list(range(1000))
+    class_map = coco80_to_coco91_class()
     s = ('%20s' + '%11s' * 6) % ('Class', 'Images', 'Labels', 'P', 'R', 'mAP@.5', 'mAP@.5:.95')
     dt, p, r, f1, mp, mr, map50, map = [0.0, 0.0, 0.0], 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
     loss = torch.zeros(3, device=device)
     jdict, stats, ap, ap_class = [], [], [], []
-    callbacks.run('on_val_start')
     pbar = tqdm(dataloader, desc=s, bar_format='{l_bar}{bar:10}{r_bar}{bar:-10b}')  # progress bar
+
+    iftime_start = time.time()
     for batch_i, (im, targets, paths, shapes) in enumerate(pbar):
-        callbacks.run('on_val_batch_start')
         t1 = time_sync()
         if cuda:
             im = im.to(device, non_blocking=True)
@@ -134,19 +124,18 @@ def run(
         dt[0] += t2 - t1
 
         # Inference
+        
+
+        iftime = []
+        iftime_avg_start = time.time()
         out, train_out = model(im, augment=augment, val=True)  # inference, loss outputs
         dt[1] += time_sync() - t2
+
 
         # Loss
         if compute_loss:
             loss += compute_loss([x.float() for x in train_out], targets)[1]  # box, obj, cls
 
-        # NMS
-        targets[:, 2:] *= torch.tensor((width, height, width, height), device=device)  # to pixels
-        lb = [targets[targets[:, 0] == i, 1:] for i in range(nb)] if save_hybrid else []  # for autolabelling
-        t3 = time_sync()
-        out = non_max_suppression(out, conf_thres, iou_thres, labels=lb, multi_label=True, agnostic=single_cls)
-        dt[2] += time_sync() - t3
 
         # Metrics
         for si, pred in enumerate(out):
@@ -166,23 +155,13 @@ def run(
                 pred[:, 5] = 0
             predn = pred.clone()
             scale_coords(im[si].shape[1:], predn[:, :4], shape, shapes[si][1])  # native-space pred
-
-            # Evaluate
-            if nl:
-                tbox = xywh2xyxy(labels[:, 1:5])  # target boxes
-                scale_coords(im[si].shape[1:], tbox, shape, shapes[si][1])  # native-space labels
-                labelsn = torch.cat((labels[:, 0:1], tbox), 1)  # native-space labels
-                correct = process_batch(predn, labelsn, iouv)
-                if plots:
-                    confusion_matrix.process_batch(predn, labelsn)
-            else:
-                correct = torch.zeros(pred.shape[0], niou, dtype=torch.bool)
-            stats.append((correct.cpu(), pred[:, 4].cpu(), pred[:, 5].cpu(), tcls))  # (correct, conf, pcls, tcls)
+        
+        iftime.append(time.time() - iftime_avg_start)
+        iftime = np.array(iftime)
 
 
-
-        callbacks.run('on_val_batch_end')
-
+    inference_time = time.time() - iftime_start
+    
     # Compute metrics
     stats = [np.concatenate(x, 0) for x in zip(*stats)]  # to numpy
     if len(stats) and stats[0].any():
@@ -197,13 +176,25 @@ def run(
     pf = '%20s' + '%11i' * 2 + '%11.3g' * 4  # print format
     LOGGER.info(pf % ('all', seen, nt.sum(), mp, mr, map50, map))
 
+    # Print results per class
+    if (verbose or (nc < 50 and not training)) and nc > 1 and len(stats):
+        for i, c in enumerate(ap_class):
+            LOGGER.info(pf % (names[c], seen, nt[c], p[i], r[i], ap50[i], ap[i]))
+
+    # metric
+    print('model_load_time =', model_load_time) 
+    print('dataset_load_time =', dataset_load_time)
+    print('inference_time =', inference_time)
+    print('inference_time(avg) =',np.sum(iftime)/len(iftime))
+    print('IPS =', 5000/(model_load_time+dataset_load_time+ (time.time()-iftime_start)))
+    print('IPS(inf) =', 5000/np.sum(iftime))
 
 
 
 def parse_opt():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data', type=str, default=ROOT / 'data/coco128.yaml', help='dataset.yaml path')
-    parser.add_argument('--weights', nargs='+', type=str, default=ROOT / 'yolov5s.pt', help='model.pt path(s)')
+    parser.add_argument('--data', type=str, default='./coco128.yaml', help='dataset.yaml path')
+    parser.add_argument('--weights', nargs='+', type=str, default='./yolov5s_saved_model', help='model.pt path(s)')
     parser.add_argument('--batch-size', type=int, default=32, help='batch size')
     parser.add_argument('--imgsz', '--img', '--img-size', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.001, help='confidence threshold')
@@ -214,31 +205,17 @@ def parse_opt():
     parser.add_argument('--single-cls', action='store_true', help='treat as single-class dataset')
     parser.add_argument('--augment', action='store_true', help='augmented inference')
     parser.add_argument('--verbose', action='store_true', help='report mAP by class')
-    parser.add_argument('--save-txt', action='store_true', help='save results to *.txt')
-    parser.add_argument('--save-hybrid', action='store_true', help='save label+prediction hybrid results to *.txt')
-    parser.add_argument('--save-conf', action='store_true', help='save confidences in --save-txt labels')
-    parser.add_argument('--save-json', action='store_true', help='save a COCO-JSON results file')
-    parser.add_argument('--project', default=ROOT / 'runs/val', help='save to project/name')
-    parser.add_argument('--name', default='exp', help='save to project/name')
-    parser.add_argument('--exist-ok', action='store_true', help='existing project/name ok, do not increment')
     parser.add_argument('--half', action='store_true', help='use FP16 half-precision inference')
     parser.add_argument('--dnn', action='store_true', help='use OpenCV DNN for ONNX inference')
     opt = parser.parse_args()
     opt.data = check_yaml(opt.data)  # check YAML
-    opt.save_json |= opt.data.endswith('coco.yaml')
-    opt.save_txt |= opt.save_hybrid
     print_args(vars(opt))
     return opt
 
 
 def main(opt):
-
     if opt.task == 'val':  # run normally
-        if opt.conf_thres > 0.001:  # https://github.com/ultralytics/yolov5/issues/1466
-            LOGGER.info(f'WARNING: confidence threshold {opt.conf_thres} >> 0.001 will produce invalid mAP values.')
         run(**vars(opt))
-
-
 
 if __name__ == "__main__":
     opt = parse_opt()
