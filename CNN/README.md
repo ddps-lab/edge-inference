@@ -37,5 +37,5 @@
 - Object Detection model inference (YOLO V5)
 
     ```bash
-    python3 ob_inference.py --weights ./CNN/model/yolo_v5_model/yolov5s_saved_model --data ./CNN/dataset/COCO_2017/coco.yaml --img 640 --iou 0.65 --half --task val
+    python3 ob_inference.py --weights ./model/yolo_v5/yolov5s_saved_model --data ./dataset/coco_2017/coco.yaml --img 640 --iou 0.65 --half --task val
     ```
