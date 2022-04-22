@@ -3,7 +3,7 @@
 - ImageNet dataset 1000, 50000 download
     
     ```bash
-    python3 ./dataset/ImageNet/val_dataset.py
+    python3 ./dataset/imagenet/val_dataset.py
     ```
     
 - Image Classification model inference (MobilNet V1)
@@ -30,7 +30,7 @@
 - COCO 2017 dataset 5000 download
     
     ```bash
-    python3 ./dataset/COCO_2017/val_dataset.py
+    python3 ./dataset/coco_2017/val_dataset.py
     unzip -q coco2017val.zip -d ./datasets && rm coco2017val.zip
     ```
 
