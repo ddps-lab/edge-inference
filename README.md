@@ -8,3 +8,5 @@ Evaluation of inference model performance on edge devices
     
         docker build -t edge-inference ./
 
+### Docker container execution (Using GPU)
+        docker run --privileged --gpus all -it edge-inference /bin/bash
