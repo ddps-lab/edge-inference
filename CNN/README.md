@@ -31,11 +31,18 @@
     
     ```bash
     python3 ./dataset/coco_2017/val_dataset.py
-    unzip -q coco2017val.zip -d ./datasets && rm coco2017val.zip
+    unzip -q coco2017val.zip -d ./model/yolo_v5/datasets && rm coco2017val.zip
+    ```
+
+- YOLO V5 TensorFlow model convert
+
+    ```bash
+    python3 ./model/yolo_v5/export.py --weights yolov5s.pt --include saved_model
+    mv yolov5s_saved_model/ ./model/yolo_v5 && rm -rf yolov5s.pt
     ```
 
 - Object Detection model inference (YOLO V5)
 
     ```bash
-    python3 ob_inference.py --weights ./model/yolo_v5/yolov5s_saved_model --data ./dataset/coco_2017/coco.yaml --img 640 --iou 0.65 --half --task val
+    python3 od_inference.py --weights ./model/yolo_v5/yolov5s_saved_model --data ./dataset/coco_2017/coco.yaml --img 640 --iou 0.65 --half --task val
     ```
