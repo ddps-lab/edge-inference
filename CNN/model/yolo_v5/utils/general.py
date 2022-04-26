@@ -32,8 +32,8 @@ import torch
 import torchvision
 import yaml
 
-from utils.downloads import gsutil_getsize
-from utils.metrics import box_iou, fitness
+from model.yolo_v5.utils.downloads import gsutil_getsize
+from model.yolo_v5.utils.metrics import box_iou, fitness
 
 # Settings
 FILE = Path(__file__).resolve()
