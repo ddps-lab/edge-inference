@@ -203,8 +203,8 @@ def run(
 
 def parse_opt():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data', type=str, default='./yolo_v5/coco.yaml', help='dataset.yaml path')
-    parser.add_argument('--weights', nargs='+', type=str, default='./yolo_v5/yolov5s_saved_model', help='model.pt path(s)')
+    parser.add_argument('--data', type=str, default='coco.yaml', help='dataset.yaml path')
+    parser.add_argument('--weights', nargs='+', type=str, default='yolov5s_saved_model', help='model.pt path(s)')
     parser.add_argument('--batch-size', type=int, default=32, help='batch size')
     parser.add_argument('--imgsz', '--img', '--img-size', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.001, help='confidence threshold')
