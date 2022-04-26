@@ -19,12 +19,12 @@ if str(ROOT) not in sys.path:
 if platform.system() != 'Windows':
     ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
-from model.yolo_v5.models.experimental import attempt_load
-from model.yolo_v5.models.yolo import Detect
-from model.yolo_v5.utils.datasets import LoadImages
-from model.yolo_v5.utils.general import (LOGGER, check_dataset, check_img_size, check_requirements, check_version, colorstr,
+from models.experimental import attempt_load
+from models.yolo import Detect
+from utils.datasets import LoadImages
+from utils.general import (LOGGER, check_dataset, check_img_size, check_requirements, check_version, colorstr,
                            file_size, print_args, url2file)
-from model.yolo_v5.utils.torch_utils import select_device
+from utils.torch_utils import select_device
 
 
 def export_formats():
