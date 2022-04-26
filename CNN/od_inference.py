@@ -10,15 +10,15 @@ import numpy as np
 import torch
 from tqdm.auto import tqdm
 
-from models.common import DetectMultiBackend
-from utils.callbacks import Callbacks
-from utils.datasets import create_dataloader
-from utils.general import (LOGGER, check_dataset, check_img_size, check_requirements, check_yaml,
+from model.yolo_v5.models.common import DetectMultiBackend
+from model.yolo_v5.utils.callbacks import Callbacks
+from model.yolo_v5.utils.datasets import create_dataloader
+from model.yolo_v5.utils.general import (LOGGER, check_dataset, check_img_size, check_requirements, check_yaml,
                            coco80_to_coco91_class, colorstr, increment_path, non_max_suppression, print_args,
                            scale_coords, xywh2xyxy, xyxy2xywh)
-from utils.metrics import ConfusionMatrix, ap_per_class, box_iou
-from utils.plots import output_to_target, plot_images, plot_val_study
-from utils.torch_utils import select_device, time_sync
+from model.yolo_v5.utils.metrics import ConfusionMatrix, ap_per_class, box_iou
+from model.yolo_v5.utils.plots import output_to_target, plot_images, plot_val_study
+from model.yolo_v5.utils.torch_utils import select_device, time_sync
 
 
 def process_batch(detections, labels, iouv):
