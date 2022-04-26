@@ -34,13 +34,6 @@
     unzip -q coco2017val.zip -d ./model/yolo_v5/datasets && rm coco2017val.zip
     ```
 
-- YOLO V5 TensorFlow model convert
-
-    ```bash
-    python3 ./model/yolo_v5/export.py --weights yolov5s.pt --include saved_model
-    mv yolov5s_saved_model/ ./model/yolo_v5 && rm -rf yolov5s.pt
-    ```
-
 - Object Detection model inference (YOLO V5)
 
     ```bash
