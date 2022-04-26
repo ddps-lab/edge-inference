@@ -291,7 +291,7 @@ class DetectMultiBackend(nn.Module):
         #   TensorFlow GraphDef:            *.pb
         #   TensorFlow Lite:                *.tflite
         #   TensorFlow Edge TPU:            *_edgetpu.tflite
-        from models.experimental import attempt_download, attempt_load  # scoped to avoid circular import
+        from model.yolo_v5.models.experimental import attempt_download, attempt_load  # scoped to avoid circular import
 
         super().__init__()
         w = str(weights[0] if isinstance(weights, list) else weights)
@@ -480,7 +480,7 @@ class DetectMultiBackend(nn.Module):
     @staticmethod
     def model_type(p='path/to/model.pt'):
         # Return model type from model path, i.e. path='path/to/model.onnx' -> type=onnx
-        from export import export_formats
+        from model.yolo_v5.export import export_formats
         suffixes = list(export_formats().Suffix) + ['.xml']  # export suffixes
         check_suffix(p, suffixes)  # checks
         p = Path(p).name  # eliminate trailing separators
