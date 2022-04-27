@@ -17,4 +17,4 @@ RUN python3 -m pip install -U pip \
 
 RUN git clone https://github.com/ddps-lab/edge-inference.git
 
-RUN pip3 install -r ./edge-inference/requirements.txt
+RUN pip3 install -r requirements.txt
