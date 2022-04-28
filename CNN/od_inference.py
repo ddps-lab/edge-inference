@@ -198,7 +198,6 @@ def run(
     print('inference_time(avg) =',np.sum(iftime)/(len(iftime)*batch_size))
     print('IPS =', (len(iftime)*batch_size)/(model_load_time + dataset_load_time + inference_time))
     print('IPS(inf) =', (len(iftime)*batch_size)/np.sum(iftime))
-    print(len(iftime))
 
 def parse_opt():
     parser = argparse.ArgumentParser()
