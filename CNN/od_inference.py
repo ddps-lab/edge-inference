@@ -40,7 +40,7 @@ def process_batch(detections, labels, iouv):
 def run(
         data,
         weights=None,  # model.pt path(s)
-        batch_size=32,  # batch size
+        batch_size=1,  # batch size
         imgsz=640,  # inference size (pixels)
         conf_thres=0.001,  # confidence threshold
         iou_thres=0.5,  # NMS IoU threshold
@@ -72,7 +72,7 @@ def run(
     imgsz = check_img_size(imgsz, s=stride)  # check image size
     half = model.fp16  # FP16 supported on limited backends with CUDA
     device = model.device
-    batch_size = 1  # export.py models default to batch-size 1
+    #batch_size = 1  # export.py models default to batch-size 1
     data = check_dataset(data)  # check
     model.eval()
     cuda = device.type != 'cpu'
@@ -109,6 +109,7 @@ def run(
     pbar = tqdm(dataloader, desc=s, bar_format='{l_bar}{bar:10}{r_bar}{bar:-10b}')  # progress bar
     
     # model inference
+    iftime = []
     iftime_start = time.time()
     for batch_i, (im, targets, paths, shapes) in enumerate(pbar):
         t1 = time_sync()
@@ -122,7 +123,6 @@ def run(
         dt[0] += t2 - t1
 
         # image inference
-        iftime = []
         iftime_avg_start = time.time()
         out, train_out = model(im, augment=augment, val=True)  # inference, loss outputs
         dt[1] += time_sync() - t2
@@ -169,9 +169,9 @@ def run(
                 correct = torch.zeros(pred.shape[0], niou, dtype=torch.bool)
             stats.append((correct.cpu(), pred[:, 4].cpu(), pred[:, 5].cpu(), tcls))  # (correct, conf, pcls, tcls)
 
-        iftime.append(time.time() - iftime_avg_start)
-        iftime = np.array(iftime)
-
+        iftime_avg_end = time.time() - iftime_avg_start
+        iftime.append(iftime_avg_end)
+    iftime = np.array(iftime)
     inference_time = time.time() - iftime_start
 
 
@@ -196,10 +196,9 @@ def run(
     print('dataset_load_time =', dataset_load_time)
     print('inference_time =', inference_time)
     print('inference_time(avg) =',np.sum(iftime)/(len(iftime)*batch_size))
-    print('IPS =', (len(iftime)*batch_size)/(model_load_time+dataset_load_time + inference_time))
+    print('IPS =', (len(iftime)*batch_size)/(model_load_time + dataset_load_time + inference_time))
     print('IPS(inf) =', (len(iftime)*batch_size)/np.sum(iftime))
-
-
+    print(len(iftime))
 
 def parse_opt():
     parser = argparse.ArgumentParser()
