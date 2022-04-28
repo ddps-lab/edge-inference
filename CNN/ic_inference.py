@@ -211,9 +211,9 @@ def predict_tf(batch_size,saved_model_dir):
     print('model_load_time =', model_load_time)
     print('dataset_load_time =', dataset_load_time)
     print('inference_time =', time.time() - iftime_start)
-    print('inference_time(avg) =', np.sum(iter_times)/len(iter_times))
-    print('IPS =', len(iter_times) / (model_load_time + dataset_load_time + (time.time() - iftime_start)))
-    print('IPS(inf) =', len(iter_times) / np.sum(iter_times))
+    print('inference_time(avg) =', np.sum(iter_times) / (len(iter_times)*batch_size))
+    print('IPS =', (len(iter_times)*batch_size) / (model_load_time + dataset_load_time + (time.time() - iftime_start)))
+    print('IPS(inf) =', (len(iter_times)*batch_size) / np.sum(iter_times))
 
 
 def predict_trt(trt_compiled_model_dir, quantization, batch_size):
