@@ -10,15 +10,15 @@ import numpy as np
 import torch
 from tqdm.auto import tqdm
 
-from models.common import DetectMultiBackend
-from utils.callbacks import Callbacks
-from utils.datasets import create_dataloader
-from utils.general import (LOGGER, check_dataset, check_img_size, check_requirements, check_yaml,
+from model.yolo_v5.models.common import DetectMultiBackend
+from model.yolo_v5.utils.callbacks import Callbacks
+from model.yolo_v5.utils.datasets import create_dataloader
+from model.yolo_v5.utils.general import (LOGGER, check_dataset, check_img_size, check_requirements, check_yaml,
                            coco80_to_coco91_class, colorstr, increment_path, non_max_suppression, print_args,
                            scale_coords, xywh2xyxy, xyxy2xywh)
-from utils.metrics import ConfusionMatrix, ap_per_class, box_iou
-from utils.plots import output_to_target, plot_images, plot_val_study
-from utils.torch_utils import select_device, time_sync
+from model.yolo_v5.utils.metrics import ConfusionMatrix, ap_per_class, box_iou
+from model.yolo_v5.utils.plots import output_to_target, plot_images, plot_val_study
+from model.yolo_v5.utils.torch_utils import select_device, time_sync
 
 
 def process_batch(detections, labels, iouv):
@@ -43,7 +43,7 @@ def run(
         batch_size=32,  # batch size
         imgsz=640,  # inference size (pixels)
         conf_thres=0.001,  # confidence threshold
-        iou_thres=0.6,  # NMS IoU threshold
+        iou_thres=0.5,  # NMS IoU threshold
         task='val',  # train, val, test, speed or study
         device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
         workers=8,  # max dataloader workers (per RANK in DDP mode)
@@ -66,23 +66,23 @@ def run(
     model_load_time = time.time()
     model = DetectMultiBackend(weights, device=device, dnn=dnn, data=data, fp16=half)
     model_load_time = time.time() - model_load_time
+
+    # model, data, device Configure
     stride, pt, jit, engine = model.stride, model.pt, model.jit, model.engine
     imgsz = check_img_size(imgsz, s=stride)  # check image size
     half = model.fp16  # FP16 supported on limited backends with CUDA
     device = model.device
     batch_size = 1  # export.py models default to batch-size 1
-
-    # model, data, device Configure
     data = check_dataset(data)  # check
     model.eval()
     cuda = device.type != 'cpu'
     is_coco = isinstance(data.get('val'), str) and data['val'].endswith(f'coco{os.sep}val2017.txt')  # COCO dataset
-    nc = 1   # number of classes
+    nc = 1 if single_cls else int(data['nc'])  # number of classes
     iouv = torch.linspace(0.5, 0.95, 10, device=device)  # iou vector for mAP@0.5:0.95
     niou = iouv.numel()
 
     # Data load
-    model.warmup(imgsz=(batch_size, 3, imgsz, imgsz))  # warmup
+    model.warmup(imgsz=(1 if pt else batch_size, 3, imgsz, imgsz))  # warmup
     pad = 0.5
     rect = pt  # square inference for benchmarks
     task = 'val'  # path to train/val/test images
@@ -101,14 +101,14 @@ def run(
     seen = 0
     confusion_matrix = ConfusionMatrix(nc=nc)
     names = {k: v for k, v in enumerate(model.names if hasattr(model, 'names') else model.module.names)}
-    class_map = coco80_to_coco91_class()
+    class_map = coco80_to_coco91_class() if is_coco else list(range(1000))
     s = ('%20s' + '%11s' * 6) % ('Class', 'Images', 'Labels', 'P', 'R', 'mAP@.5', 'mAP@.5:.95')
     dt, p, r, f1, mp, mr, map50, map = [0.0, 0.0, 0.0], 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
     loss = torch.zeros(3, device=device)
     jdict, stats, ap, ap_class = [], [], [], []
     pbar = tqdm(dataloader, desc=s, bar_format='{l_bar}{bar:10}{r_bar}{bar:-10b}')  # progress bar
     
-    # batch inference
+    # model inference
     iftime_start = time.time()
     for batch_i, (im, targets, paths, shapes) in enumerate(pbar):
         t1 = time_sync()
@@ -180,7 +180,7 @@ def run(
     if len(stats) and stats[0].any():
         tp, fp, p, r, f1, ap, ap_class = ap_per_class(*stats, plot=plots, names=names)
         ap50, ap = ap[:, 0], ap.mean(1)  # AP@0.5, AP@0.5:0.95
-        mp, mr, map50, map = p.mean(), r.mean(), ap50.mean(), ap.mean()
+        mp, mr, map50, map = p.mean(), r.mean(), ap50.m nnnnnnnnn                                                               n                    nean(), ap.mean()
         nt = np.bincount(stats[3].astype(np.int64), minlength=nc)  # number of targets per class
     else:
         nt = torch.zeros(1)
@@ -196,19 +196,19 @@ def run(
     print('dataset_load_time =', dataset_load_time)
     print('inference_time =', inference_time)
     print('inference_time(avg) =',np.sum(iftime)/(len(iftime)*batch_size))
-    print('IPS =', (len(iftime)*batch_size)/(model_load_time + dataset_load_time + (time.time()-iftime_start)))
+    print('IPS =', (len(iftime)*batch_size)/(model_load_time+dataset_load_time+ (time.time()-iftime_start)))
     print('IPS(inf) =', (len(iftime)*batch_size)/np.sum(iftime))
 
 
 
 def parse_opt():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data', type=str, default='coco.yaml', help='dataset.yaml path')
-    parser.add_argument('--weights', nargs='+', type=str, default='yolov5s_saved_model', help='model.pt path(s)')
-    parser.add_argument('--batch-size', type=int, default=32, help='batch size')
+    parser.add_argument('--data', type=str, default='./yolo_v5/coco.yaml', help='dataset.yaml path')
+    parser.add_argument('--weights', nargs='+', type=str, default='./yolo_v5/yolov5s_saved_model', help='model.pt path(s)')
+    parser.add_argument('--batch-size', type=int, default=1, help='batch size')
     parser.add_argument('--imgsz', '--img', '--img-size', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.001, help='confidence threshold')
-    parser.add_argument('--iou-thres', type=float, default=0.6, help='NMS IoU threshold')
+    parser.add_argument('--iou-thres', type=float, default=0.5, help='NMS IoU threshold')
     parser.add_argument('--task', default='val', help='train, val, test, speed or study')
     parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     parser.add_argument('--workers', type=int, default=8, help='max dataloader workers (per RANK in DDP mode)')
@@ -227,7 +227,7 @@ def parse_opt():
 def main(opt):
     if opt.task == 'val':  # run normally
         run(**vars(opt))
-
+    os.system('rm -rf ./*.png')
 
 if __name__ == "__main__":
     opt = parse_opt()
