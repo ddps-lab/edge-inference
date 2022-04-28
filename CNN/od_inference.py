@@ -10,15 +10,15 @@ import numpy as np
 import torch
 from tqdm.auto import tqdm
 
-from model.yolo_v5.models.common import DetectMultiBackend
-from model.yolo_v5.utils.callbacks import Callbacks
-from model.yolo_v5.utils.datasets import create_dataloader
-from model.yolo_v5.utils.general import (LOGGER, check_dataset, check_img_size, check_requirements, check_yaml,
+from models.common import DetectMultiBackend
+from utils.callbacks import Callbacks
+from utils.datasets import create_dataloader
+from utils.general import (LOGGER, check_dataset, check_img_size, check_requirements, check_yaml,
                            coco80_to_coco91_class, colorstr, increment_path, non_max_suppression, print_args,
                            scale_coords, xywh2xyxy, xyxy2xywh)
-from model.yolo_v5.utils.metrics import ConfusionMatrix, ap_per_class, box_iou
-from model.yolo_v5.utils.plots import output_to_target, plot_images, plot_val_study
-from model.yolo_v5.utils.torch_utils import select_device, time_sync
+from utils.metrics import ConfusionMatrix, ap_per_class, box_iou
+from utils.plots import output_to_target, plot_images, plot_val_study
+from utils.torch_utils import select_device, time_sync
 
 
 def process_batch(detections, labels, iouv):
@@ -77,13 +77,13 @@ def run(
     model.eval()
     cuda = device.type != 'cpu'
     is_coco = isinstance(data.get('val'), str) and data['val'].endswith(f'coco{os.sep}val2017.txt')  # COCO dataset
-    nc = 1 if single_cls else int(data['nc'])  # number of classes
+    nc = 1   # number of classes
     iouv = torch.linspace(0.5, 0.95, 10, device=device)  # iou vector for mAP@0.5:0.95
     niou = iouv.numel()
 
     # Data load
-    model.warmup(imgsz=(1 if pt else batch_size, 3, imgsz, imgsz))  # warmup
-    pad = 0.0 if task in ('speed', 'benchmark') else 0.5
+    model.warmup(imgsz=(batch_size, 3, imgsz, imgsz))  # warmup
+    pad = 0.5
     rect = pt  # square inference for benchmarks
     task = 'val'  # path to train/val/test images
     dataset_load_time = time.time()
@@ -101,14 +101,14 @@ def run(
     seen = 0
     confusion_matrix = ConfusionMatrix(nc=nc)
     names = {k: v for k, v in enumerate(model.names if hasattr(model, 'names') else model.module.names)}
-    class_map = coco80_to_coco91_class() if is_coco else list(range(1000))
+    class_map = coco80_to_coco91_class()
     s = ('%20s' + '%11s' * 6) % ('Class', 'Images', 'Labels', 'P', 'R', 'mAP@.5', 'mAP@.5:.95')
     dt, p, r, f1, mp, mr, map50, map = [0.0, 0.0, 0.0], 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
     loss = torch.zeros(3, device=device)
     jdict, stats, ap, ap_class = [], [], [], []
     pbar = tqdm(dataloader, desc=s, bar_format='{l_bar}{bar:10}{r_bar}{bar:-10b}')  # progress bar
     
-    # model inference
+    # batch inference
     iftime_start = time.time()
     for batch_i, (im, targets, paths, shapes) in enumerate(pbar):
         t1 = time_sync()
@@ -195,9 +195,9 @@ def run(
     print('model_load_time =', model_load_time) 
     print('dataset_load_time =', dataset_load_time)
     print('inference_time =', inference_time)
-    print('inference_time(avg) =',np.sum(iftime)/len(iftime))
-    print('IPS =', 5000/(model_load_time+dataset_load_time+ (time.time()-iftime_start)))
-    print('IPS(inf) =', 5000/np.sum(iftime))
+    print('inference_time(avg) =',np.sum(iftime)/(len(iftime)*batch_size))
+    print('IPS =', (len(iftime)*batch_size)/(model_load_time + dataset_load_time + (time.time()-iftime_start)))
+    print('IPS(inf) =', (len(iftime)*batch_size)/np.sum(iftime))
 
 
 
