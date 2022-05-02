@@ -191,7 +191,8 @@ def run(
 
 
     # metric
-    print('accuracy = ', mr)
+    print('AP@0.5 = ', map50)
+    print('AP@0.5:0.95 = ', map)
     print('model_load_time =', model_load_time) 
     print('dataset_load_time =', dataset_load_time)
     print('inference_time =', inference_time)
