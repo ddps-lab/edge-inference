@@ -20,13 +20,3 @@ RUN git clone https://github.com/ddps-lab/edge-inference.git
 
 COPY ./requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
-
-RUN echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" \
-| tee /etc/apt/sources.list.d/coral-edgetpu.list
-RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-RUN apt-get update
-
-RUN git clone https://github.com/google-coral/pycoral.git
-RUN git clone https://github.com/google-coral/test_data.git
-
-RUN apt install -y python3-pycoral
