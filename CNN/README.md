@@ -24,8 +24,7 @@
     python3 ic_inference.py --batchsize=1 --model=inception_v3 --case=tf --quantization=FP32 --engines=1 --img_size=299
     ```
 
-### Object Detection
-
+### Object Detection (image)
 
 - COCO 2017 dataset 5000 download
     
@@ -38,4 +37,12 @@
 
     ```bash
     python3 od_inference.py --weights ./model/yolo_v5/yolov5s_saved_model --data ./model/yolo_v5/coco.yaml --img 640 --iou 0.5 --half --task val
+    ```
+    
+### Object Detection (video)
+
+- Object Detection model inference (YOLO V5)
+
+    ```bash
+    python3 video_detection.py --weights ./model/yolo_v5/yolov5s_saved_model --source ./dataset/video/road.mp4 --data ./model/yolo_v5/coco.yaml
     ```
