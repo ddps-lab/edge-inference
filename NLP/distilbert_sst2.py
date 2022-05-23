@@ -11,6 +11,11 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+  tf.config.experimental.set_virtual_device_configuration(gpus[0],
+        [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
+
 model = None
 load_model_time = None
 result_df = pd.DataFrame(columns=['batch_size', 'accuracy', 'load_model_time', 'load_dataset_time','total_inference_time', 'avg_inference_time','ips', 'ips_inf'])
