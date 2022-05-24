@@ -150,11 +150,17 @@ def inference(batch_size):
                                 'avg_inference_time' : round(inference_time / len(X_test), 4),
                                 'ips' : round(len(X_test) / (load_model_time + load_dataset_time + inference_time), 4), 
                                 'ips_inf' : round(len(X_test) / inference_time, 4)}, ignore_index=True)
+    
+  # 배치 단위 추론 결과 데이터 저장
+  result_df.to_csv(result_csv, index=False)
 
 
 # 모델이 저장되어있는/저장할 경로
 model_name = 'lstm_imdb'
 saved_model_dir=f'./model/{model_name}_model'
+
+# 배치 단위 추론 결과 데이터를 저장할 경로
+result_csv=f'./csv/{model_name}_result.csv'
 
 # 저장되어있는 모델이 없다면, 모델을 새롭게 학습한 뒤 저장
 # train_and_save_model(saved_model_dir)
@@ -165,9 +171,3 @@ load_model(saved_model_dir)
 # 배치 단위로 추론 
 for batch_size in [1, 2, 4, 8, 16, 32, 64, 128]:
   inference(batch_size)
-
-# 배치 단위 추론 결과 데이터를 저장할 경로
-result_csv=f'./csv/{model_name}_result.csv'
-
-# 배치 단위 추론 결과 데이터 저장
-result_df.to_csv(result_csv, index=False)
