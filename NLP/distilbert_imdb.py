@@ -112,8 +112,14 @@ def inference(batch_size):
                                 'ips' : round(len(X_test) / (load_model_time + load_dataset_time + inference_time), 4), 
                                 'ips_inf' : round(len(X_test) / inference_time, 4)}, ignore_index=True)
 
+  # 배치 단위 추론 결과 데이터 저장
+  result_df.to_csv(result_csv, index=False)
+
 # 모델명
 model_name = 'distilbert_imdb'
+
+# 배치 단위 추론 결과 데이터를 저장할 경로
+result_csv=f'./csv/{model_name}_result.csv'
 
 # 모델 로드
 load_model()
@@ -121,9 +127,3 @@ load_model()
 # 배치 단위로 추론 
 for batch_size in [1, 2, 4, 8, 16, 32, 64, 128]:
   inference(batch_size)
-
-# 배치 단위 추론 결과 데이터를 저장할 경로
-result_csv=f'./csv/{model_name}_result.csv'
-
-# 배치 단위 추론 결과 데이터 저장
-result_df.to_csv(result_csv, index=False)
