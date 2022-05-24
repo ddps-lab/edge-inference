@@ -18,5 +18,9 @@ RUN python3 -m pip install -U pip \
 
 RUN git clone https://github.com/ddps-lab/edge-inference.git
 
+RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/bert_dataset.zip > ./edge-inference/NLP/dataset/bert_dataset.zip
+RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/bert_imdb_model.h5 > ./edge-inference/NLP/model/bert_imdb_model.h5
+RUN unzip ./edge-inference/NLP/dataset/bert_dataset.zip
+
 COPY ./requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
