@@ -22,5 +22,4 @@
     
     ```python
     python3 distilbert_imdb.py
-    python3 distilbert_sst2.py
     ```
