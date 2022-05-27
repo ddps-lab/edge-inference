@@ -6,14 +6,12 @@ import numpy as np
 import time
 import pandas as pd
 
-
 # Check GPU Availability
 device_name = tf.test.gpu_device_name()
 if not device_name:
     print('Cannot found GPU. Training with CPU')
 else:
     print('Found GPU at :{}'.format(device_name))
-
 
 # 전역 변수 설정
 model = None
@@ -37,7 +35,7 @@ def train_and_save_model(saved_model_dir):
                                                         padding = 'pre',
                                                         maxlen = maxlen)
   model = tf.keras.models.Sequential()
-  model.add(tf.keras.layers.Embedding(num_words, 128))
+  model.add(tf.keras.layers.Embedding(num_words, 128, input_length = len(X_train[0])))
   model.add(tf.keras.layers.LSTM(128, dropout=0.2, recurrent_dropout=0.2))
   model.add(tf.keras.layers.Dense(1, activation='sigmoid'))
 
