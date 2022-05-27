@@ -38,7 +38,7 @@ def train_and_save_model(saved_model_dir):
                                                         padding = 'pre',
                                                         maxlen = maxlen)
   model = tf.keras.models.Sequential()
-  model.add(tf.keras.layers.Embedding(num_words, 32))
+  model.add(tf.keras.layers.Embedding(num_words, 32, input_length = len(X_train[0])))
   model.add(tf.keras.layers.SimpleRNN(16, input_shape=(num_words, maxlen), return_sequences=False, activation="relu"))
   model.add(tf.keras.layers.Dense(1, activation='sigmoid'))
 
