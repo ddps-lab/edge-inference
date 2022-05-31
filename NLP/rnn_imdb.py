@@ -7,7 +7,6 @@ import numpy as np
 import time
 import pandas as pd
 
-
 # Check GPU Availability
 device_name = tf.test.gpu_device_name()
 if not device_name:
@@ -15,13 +14,11 @@ if not device_name:
 else:
     print('Found GPU at :{}'.format(device_name))
 
-
 # 전역 변수 설정
 model = None
 load_model_time = None
 X_test = None
 result_df = pd.DataFrame(columns=['batch_size', 'accuracy', 'load_model_time', 'load_dataset_time','total_inference_time', 'avg_inference_time','ips', 'ips_inf'])
-
 
 # 모델 훈련 및 저장
 def train_and_save_model(saved_model_dir):
@@ -54,8 +51,6 @@ def train_and_save_model(saved_model_dir):
                       verbose = 1)   
 
   model.save(saved_model_dir, include_optimizer=False, save_format='tf')
-
-
   
 # 모델 로드
 def load_model(saved_model_dir):
@@ -66,8 +61,6 @@ def load_model(saved_model_dir):
   load_model_time = time.time()
   model = tf.keras.models.load_model(saved_model_dir)
   load_model_time = time.time() - load_model_time
-
-
 
 # 테스트 데이터를 배치 단위로 제공
 def load_test_batch(batch_size):
@@ -87,8 +80,6 @@ def load_test_batch(batch_size):
   test_batch = tf.data.Dataset.from_tensor_slices((X_test, y_test)).batch(batch_size)
 
   return test_batch
-
-
 
 def inference(batch_size):	
 
@@ -112,15 +103,9 @@ def inference(batch_size):
   # 전체 데이터를 배치 단위로 묶어서 사용 (반복문 한번당 배치 단위 추론 한번)
   for i, (X_test_batch, y_test_batch) in enumerate(test_batch):
       
-      # 배치별 데이터 추론 시간
-      # inference_time_per_batch = time.time()
-
       # 배치 단위별 데이터셋 분류
       y_pred_batch = model(X_test_batch)
-      
-      # 배치별 데이터 추론 시간 저장
-      # iter_times.append(time.time() - inference_time_per_batch)
-      
+    
       # 배치 사이즈 만큼의 실제 라벨 저장
       real_labels.extend(y_test_batch.numpy())
       # 배치 사이즈 만큼의 예측 라벨 저장
@@ -134,9 +119,6 @@ def inference(batch_size):
         print("{}/{}".format(success,len(test_batch)*batch_size))
   
   inference_time = time.time() - inference_time
-
-  # 모든 데이터에 대한 배치별 추론 시간을 배열화
-  # iter_times = np.array(iter_times)
 
   # 모든 데이터에 대한 실제라벨과 예측라벨을 비교한 뒤, 정확도 계산
   accuracy = np.sum(np.array(real_labels) == np.array(pred_labels))/len(real_labels)
@@ -156,7 +138,7 @@ def inference(batch_size):
 
 # 모델이 저장되어있는/저장할 경로
 model_name = 'rnn_imdb'
-saved_model_dir=f'./model/{model_name}_model'
+saved_model_dir=f'./model/{model_name}_model.h5'
 
 # 배치 단위 추론 결과 데이터를 저장할 경로
 result_csv=f'./csv/{model_name}_result.csv'
