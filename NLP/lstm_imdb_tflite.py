@@ -70,6 +70,13 @@ def inference(batch_size):
   test_batch = load_test_batch(batch_size)
   load_dataset_time = time.time() - load_dataset_time
 
+  # 전체 데이터가 배치 단위에 맞게 나눠지는 경우
+  if (len(X_test) % batch_size == 0):
+    X_test_len = len(X_test)
+  # 전체 데이터가 배치 단위에 맞게 나눠지지 않는 경우
+  else:
+    X_test_len = len(X_test)-(len(X_test) % batch_size)
+  
   # 디버깅용 변수
   success = 0
 
@@ -78,25 +85,28 @@ def inference(batch_size):
   # 전체 데이터를 배치 단위로 묶어서 사용 (반복문 한번당 배치 단위 추론 한번)
   for i, (X_test_batch, y_test_batch) in enumerate(test_batch):
       
-      X_test_batch = tf.cast(X_test_batch, tf.float32)
+      # 전체 데이터를 배치 단위로 나눈 뒤, 남은 나머지 데이터는 처리하지 않음
+      if (X_test_batch.shape[0] == batch_size):
+        
+        X_test_batch = tf.cast(X_test_batch, tf.float32)
 
-      model.set_tensor(input_details[0]['index'], X_test_batch)
-      model.invoke()
+        model.set_tensor(input_details[0]['index'], X_test_batch)
+        model.invoke()
 
-      # 배치 단위별 데이터셋 분류
-      y_pred_batch = model.get_tensor(output_details[0]['index'])
-    
-      # 배치 사이즈 만큼의 실제 라벨 저장
-      real_labels.extend(y_test_batch.numpy())
-      # 배치 사이즈 만큼의 예측 라벨 저장
-      y_pred_batch = np.where(y_pred_batch > 0.5, 1, 0)
-      y_pred_batch = y_pred_batch.reshape(-1)
-      pred_labels.extend(y_pred_batch)
+        # 배치 단위별 데이터셋 분류
+        y_pred_batch = model.get_tensor(output_details[0]['index'])
 
-      # 디버깅
-      success += batch_size
-      if (success % 500 == 0):
-        print("{}/{}".format(success,len(test_batch)*batch_size))
+        # 배치 사이즈 만큼의 실제 라벨 저장
+        real_labels.extend(y_test_batch.numpy())
+        # 배치 사이즈 만큼의 예측 라벨 저장
+        y_pred_batch = np.where(y_pred_batch > 0.5, 1, 0)
+        y_pred_batch = y_pred_batch.reshape(-1)
+        pred_labels.extend(y_pred_batch)
+
+        # 디버깅
+        success += batch_size
+        if (success % 500 == 0):
+          print("{}/{}".format(success,len(test_batch)*batch_size))
   
   inference_time = time.time() - inference_time
 
@@ -110,9 +120,9 @@ def inference(batch_size):
                                 'load_model_time' : round(load_model_time, 4), 
                                 'load_dataset_time' : round(load_dataset_time, 4),
                                 'total_inference_time' : round(inference_time, 4), 
-                                'avg_inference_time' : round(inference_time / len(X_test), 4),
-                                'ips' : round(len(X_test) / (load_model_time + load_dataset_time + inference_time), 4), 
-                                'ips_inf' : round(len(X_test) / inference_time, 4)}, ignore_index=True)
+                                'avg_inference_time' : round(inference_time / X_test_len, 4),
+                                'ips' : round(X_test_len / (load_model_time + load_dataset_time + inference_time), 4), 
+                                'ips_inf' : round(X_test_len / inference_time, 4)}, ignore_index=True)
   # 배치 단위 추론 결과 데이터 저장
   result_df.to_csv(result_csv, index=False)
 
