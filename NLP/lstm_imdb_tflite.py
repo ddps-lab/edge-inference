@@ -106,7 +106,7 @@ def inference(batch_size):
         # 디버깅
         success += batch_size
         if (success % 500 == 0):
-          print("{}/{}".format(success,len(test_batch)*batch_size))
+          print("{}/{}".format(success,X_test_len))
   
   inference_time = time.time() - inference_time
 
