@@ -22,6 +22,7 @@ WORKDIR /edge-inference/NLP/model/
 RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/bert_imdb_model.h5
 RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/rnn_imdb_model.h5
 RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/lstm_imdb_model.h5
+RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/distilbert_sst2_model.h5
 WORKDIR /edge-inference/NLP/dataset/
 RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/bert_dataset.zip
 RUN unzip bert_dataset.zip && rm -rf bert_dataset.zip
