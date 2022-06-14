@@ -18,15 +18,15 @@ RUN python3 -m pip install -U pip \
 
 RUN git clone https://github.com/ddps-lab/edge-inference.git
 
-WORKDIR /edge-inference/NLP/model/
-RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/bert_imdb_model.h5
-RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/rnn_imdb_model.h5
-RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/lstm_imdb_model.h5
-RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/distilbert_sst2_model.h5
-WORKDIR /edge-inference/NLP/dataset/
-RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/bert_dataset.zip
-RUN unzip bert_dataset.zip && rm -rf bert_dataset.zip
-WORKDIR /
+# WORKDIR /edge-inference/NLP/model/
+# RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/bert_imdb_model.h5
+# RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/rnn_imdb_model.h5
+# RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/lstm_imdb_model.h5
+# RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/distilbert_sst2_model.h5
+# WORKDIR /edge-inference/NLP/dataset/
+# RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/bert_dataset.zip
+# RUN unzip bert_dataset.zip && rm -rf bert_dataset.zip
+# WORKDIR /
 
 COPY ./requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
