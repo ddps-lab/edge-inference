@@ -239,8 +239,11 @@ model_name = 'distilbert_sst2'
 
 result_csv=f'./csv/{model_name}_result.csv'
 
+# 모델 변환
+# for batch_size in [1, 2, 4, 8, 16, 32, 64, 128]:
+#   tflite_converter(batch_size)
+
 # 배치 단위로 추론
 for batch_size in [1, 2, 4, 8, 16, 32, 64, 128]:
-  tflite_converter(batch_size)
   load_tflite_model(batch_size)
   inference(batch_size)
