@@ -15,3 +15,4 @@ Evaluation of inference model performance on edge devices
         docker run --privileged --gpus all --shm-size 10G -it edge-inference /bin/bash
 
 ### Docker container execution (Using TPU)
+	docker run --privileged -it edge-inference /bin/bash
