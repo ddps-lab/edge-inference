@@ -3,13 +3,13 @@
 
 #image classification TF/FP32 model (mobilenet v1, mobilenet v2, inception v3)
 curl -O https://edge-inference.s3.us-west-2.amazonaws.com/CNN/model/mobilenet_v1/mobilenet_v1.zip
-unzip -q mobilenet_v1.zip -d ./mobilenet_v1 && rm mobilenet_v1.zip
+unzip -q mobilenet_v1.zip && rm mobilenet_v1.zip
 
 curl -O https://edge-inference.s3.us-west-2.amazonaws.com/CNN/model/mobilenet_v2/mobilenet_v2.zip
-unzip -q mobilenet_v2.zip -d ./mobilenet_v2 && rm mobilenet_v2.zip
+unzip -q mobilenet_v2.zip && rm mobilenet_v2.zip
 
 curl -O https://edge-inference.s3.us-west-2.amazonaws.com/CNN/model/inception_v3/inception_v3.zip
-unzip -q mobilenet_v2.zip -d ./mobilenet_v2 && rm mobilenet_v2.zip
+unzip -q mobilenet_v2.zip && rm mobilenet_v2.zip
 
 #image classification EdgeTPU tflite INT8 model (mobilenet v1, mobilenet v2, inception v3)
 mkdir mobilenet_v1_edgetpu_tflite
@@ -26,7 +26,7 @@ mv inceptionv3_edgetpu.tflite ./inception_v3_edgetpu_tflite
 
 #object detection TF/FP32 model (yolo v5)
 curl -O https://edge-inference.s3.us-west-2.amazonaws.com/CNN/model/yolo_v5/yolo_v5.zip
-unzip -q yolo_v5.zip -d ./yolo_v5 && rm yolo_v5.zip
+unzip -q yolo_v5.zip && rm yolo_v5.zip
 
 #object detection EdgeTPU tflite INT8 model (yolo v5)
 mkdir yolo_v5_edgetpu_tflite
