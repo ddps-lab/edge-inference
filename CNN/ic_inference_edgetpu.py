@@ -5,7 +5,7 @@ import numpy as np
 
 from PIL import Image
 
-import classify
+from model import classify
 import tflite_runtime.interpreter as tflite
 import platform
 
