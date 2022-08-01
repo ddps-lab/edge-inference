@@ -12,6 +12,7 @@ curl -O https://edge-inference.s3.us-west-2.amazonaws.com/CNN/model/inception_v3
 unzip -q mobilenet_v2.zip && rm mobilenet_v2.zip
 
 #image classification EdgeTPU tflite INT8 model (mobilenet v1, mobilenet v2, inception v3)
+curl -O https://edge-inference.s3.us-west-2.amazonaws.com/CNN/model/classify.py
 mkdir mobilenet_v1_edgetpu_tflite
 curl -O https://edge-inference.s3.us-west-2.amazonaws.com/CNN/model/mobilenet_v1_edgetpu_tflite/tf2_mobilenet_v1_1.0_224_ptq_edgetpu.tflite
 mv tf2_mobilenet_v1_1.0_224_ptq_edgetpu.tflite ./mobilenet_v1_edgetpu_tflite
