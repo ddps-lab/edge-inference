@@ -1,13 +1,6 @@
 ### Image Classification
 
-- tfrecord ImageNet dataset 1000, ImageNet raw dataset 1000 download
-    
-    ```bash
-    python3 ./dataset/imagenet/val_dataset.py
-    mv ./imagenet_1000 ./dataset/imagenet/
-    unzip -q imagenet_1000_raw.zip -d ./dataset/imagenet && rm imagenet_1000_raw.zip
-    ```
-    
+
 - Image Classification model inference (MobilNet V1 - using tfrecord ImageNet dataset 1000)
     
     ```bash
@@ -46,13 +39,6 @@
 
 
 ### Object Detection (image)
-
-- COCO 2017 dataset 5000 download
-    
-    ```bash
-    python3 ./dataset/coco_2017/val_dataset.py
-    unzip -q coco2017val.zip -d ./model/yolo_v5/datasets && rm coco2017val.zip
-    ```
 
 - Object Detection model inference (YOLO V5 - Nvidia Jetson & Coral TPU)
 

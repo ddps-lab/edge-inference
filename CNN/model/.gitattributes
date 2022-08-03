@@ -1,5 +1,0 @@
-mobilenet_v1_edgetpu filter=lfs diff=lfs merge=lfs -text
-mobilenet_v2_edgetpu filter=lfs diff=lfs merge=lfs -text
-inception_v3_edgetpu filter=lfs diff=lfs merge=lfs -text
-yolo_v5_edgetpu filter=lfs diff=lfs merge=lfs -text
-yolo_v5/yolov5s_saved_model_FP32 filter=lfs diff=lfs merge=lfs -text
