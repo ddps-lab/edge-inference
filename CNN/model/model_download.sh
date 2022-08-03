@@ -9,7 +9,7 @@ curl -O https://edge-inference.s3.us-west-2.amazonaws.com/CNN/model/mobilenet_v2
 unzip -q mobilenet_v2.zip && rm mobilenet_v2.zip
 
 curl -O https://edge-inference.s3.us-west-2.amazonaws.com/CNN/model/inception_v3/inception_v3.zip
-unzip -q mobilenet_v2.zip && rm mobilenet_v2.zip
+unzip -q inception_v3.zip && rm inception_v3.zip
 
 #image classification EdgeTPU tflite INT8 model (mobilenet v1, mobilenet v2, inception v3)
 curl -O https://edge-inference.s3.us-west-2.amazonaws.com/CNN/model/classify.py
