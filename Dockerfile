@@ -1,5 +1,6 @@
 FROM nvcr.io/nvidia/l4t-tensorflow:r32.6.1-tf2.5-py3 
 
+## CNN, NLP library install 
 RUN apt-get update && apt-get install -y git \
     vim \
     cmake \
@@ -16,6 +17,7 @@ RUN python3 -m pip install -U pip \
     setuptools \
     setuptools_rust
 
+# USB Coral TPU library install
 RUN echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 RUN apt-get update
@@ -27,6 +29,7 @@ RUN apt-get install -y python3-edgetpu
 
 RUN pip3 install https://dl.google.com/coral/python/tflite_runtime-2.1.0.post1-cp36-cp36m-linux_aarch64.whl
 
+# model, dataset, inference code git repo clone
 RUN git clone https://github.com/ddps-lab/edge-inference.git
 
 COPY ./requirements.txt requirements.txt
