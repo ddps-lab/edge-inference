@@ -16,16 +16,18 @@ RUN python3 -m pip install -U pip \
     setuptools \
     setuptools_rust
 
-RUN git clone https://github.com/ddps-lab/edge-inference.git
+RUN echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list
+RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+RUN apt-get update
 
-WORKDIR /edge-inference/NLP/model/
-RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/bert_imdb_model.h5
-RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/rnn_imdb_model.h5
-RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/lstm_imdb_model.h5
-WORKDIR /edge-inference/NLP/dataset/
-RUN curl -O https://edge-inference.s3.us-west-2.amazonaws.com/bert_dataset.zip
-RUN unzip bert_dataset.zip && rm -rf bert_dataset.zip
-WORKDIR /
+RUN apt-get install -y gasket-dkms \
+    libedgetpu1-std \
+    usbutils
+RUN apt-get install -y python3-edgetpu
+
+RUN pip3 install https://dl.google.com/coral/python/tflite_runtime-2.1.0.post1-cp36-cp36m-linux_aarch64.whl
+
+RUN git clone https://github.com/ddps-lab/edge-inference.git
 
 COPY ./requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
