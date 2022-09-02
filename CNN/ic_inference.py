@@ -101,7 +101,7 @@ def val_preprocessing(record):
     return image, label, label_text
 
 def get_dataset(batch_size, use_cache=False):
-    data_dir = './imagenet_[image count]'
+    data_dir = './dataset/imagenet/imagenet_1000'
     files = tf.io.gfile.glob(os.path.join(data_dir))
     dataset = tf.data.TFRecordDataset(files)
     
