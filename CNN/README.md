@@ -19,22 +19,22 @@
     python3 ic_inference.py --batchsize=1 --model=inception_v3 --case=tf --quantization=FP32 --engines=1 --img_size=299
     ```
 
-- Image Classification edgetpu tflite model inference (MobileNet v1 - using ImageNet raw dataset 1000)
+- Image Classification edgetpu tflite model inference (Coral - MobileNet v1 - using ImageNet raw dataset 1000)
 
     ```bash 
     python3 ic_inference_edgetpu.py --model ./model/mobilenet_v1_edgetpu_tflite/tf2_mobilenet_v1_1.0_224_ptq_edgetpu.tflite  --labels ./dataset/imagenet/imagenet_metadata.txt
     ```
 
-- Image Classification edgetpu tflite model inference (MobileNet v2 - using ImageNet raw dataset 1000)
+- Image Classification edgetpu tflite model inference (Coral - MobileNet v2 - using ImageNet raw dataset 1000)
 
     ```bash 
     python3 ic_inference_edgetpu.py --model ./model/mobilenet_v2_edgetpu_tflite/tf2_mobilenet_v2_1.0_224_ptq_edgetpu.tflite  --labels ./dataset/imagenet/imagenet_metadata.txt
     ```
 
-- Image Classification edgetpu tflite model inference (Inception v3 - using ImageNet raw dataset 1000)
+- Image Classification edgetpu tflite model inference (Coral - Inception v3 - using ImageNet raw dataset 1000)
 
     ```bash
-    python3 ic_inference_edgetpu.py --model ./model/inception_v3_edgetpu_tflite/inceptionv3_edgetpu.tflite  --labels ./dataset/imagenet/imagenet_metadata.txt
+    python3 ic_inference_edgetpu.py --model ./model/inception_v3_edgetpu_tflite/inception_v3_299_quant_edgetpu.tflite  --labels ./dataset/imagenet/imagenet_metadata.txt
     ```
 
 
