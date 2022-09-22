@@ -25,7 +25,7 @@ def load_labels(path, encoding='utf-8'): # 현재 쓰이지 않음
 
 
 def load_data(batch_size):
-    load_data=[]
+    loaded_data=[]
     image_path = './dataset/imagenet/imagenet_1000_raw/'
     input_files = os.listdir(image_path)
 
@@ -34,12 +34,12 @@ def load_data(batch_size):
         tensor_img = tf.io.decode_image(image, channels=3)
         tensor_img = tf.image.convert_image_dtype(tensor_img, tf.uint8) 
         tensor_img = tf.image.resize(tensor_img, [299,299], antialias=True) 
-        load_data.append(tensor_img)
-    load_data =  (tf.data.Dataset.from_tensor_slices(load_data).batch(batch_size, drop_remainder=True).prefetch(tf.data.experimental.AUTOTUNE))
-#     load_data =  (tf.data.Dataset.from_tensor_slices(load_data).batch(batch_size, drop_remainder=True))
-#     load_data = tf.data.Dataset.from_tensor_slices(load_data).padded_batch(batch_size) 
+        loaded_data.append(tensor_img)
+    loaded_data =  (tf.data.Dataset.from_tensor_slices(loaded_data).batch(batch_size, drop_remainder=True).prefetch(tf.data.experimental.AUTOTUNE))
+#     loaded_data =  (tf.data.Dataset.from_tensor_slices(loaded_data).batch(batch_size, drop_remainder=True))
+#     loaded_data = tf.data.Dataset.from_tensor_slices(loaded_data).padded_batch(batch_size) 
 
-    return load_data
+    return loaded_data
 
 
 def inference(interpreter, top_k, threshold, batch_size, image_batch):
