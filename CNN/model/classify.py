@@ -61,7 +61,6 @@ def get_output(interpreter, top_k=1, score_threshold=0.0):
   classes = []
   for scores_per_img in scores:
     for i in np.argpartition(scores_per_img, -top_k)[-top_k:]:
-        print('i:', i)
         if scores_per_img[i] >= score_threshold:
             classes.append(Class(i, scores_per_img[i]))
 
