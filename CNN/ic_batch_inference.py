@@ -11,7 +11,7 @@ import platform
 import tensorflow as tf
 
 
-def load_labels(path, encoding='utf-8'):
+def load_labels(path, encoding='utf-8'): # 현재 쓰이지 않음
   with open(path, 'r', encoding=encoding) as f:
     lines = f.readlines()
     if not lines:
