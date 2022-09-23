@@ -42,8 +42,7 @@ def load_data(batch_size):
     return loaded_data
 
 
-def inference(interpreter, top_k, threshold, batch_size, image_batch):
-    
+def inference(interpreter, top_k, threshold, batch_size, image_batch):  
     iter_times=[]
     accuracy=[]
 
@@ -51,12 +50,11 @@ def inference(interpreter, top_k, threshold, batch_size, image_batch):
 
     for i, batch in enumerate(image_batch): 
 
-        batch = tf.cast(batch, tf.uint8) # 이거 하는 이유 궁금, 그리고 uint8 아니면 오류나는 이유 궁금
+        batch = tf.cast(batch, tf.uint8) 
         interpreter.set_tensor(interpreter.get_input_details()[0]['index'], batch)
         start = time.perf_counter() 
         interpreter.invoke()
-        iter_times.append(time.perf_counter() - start)
-        print(iter_times)        
+        iter_times.append(time.perf_counter() - start)       
         classes = classify.get_output(interpreter, top_k, threshold)
         for klass in classes:
             accuracy.append(klass.score)
@@ -95,7 +93,6 @@ def main():
   interpreter.allocate_tensors()
 
   model_load_time = time.time() - model_load_time
-  print('model load time:', model_load_time)
     
   # load dataset
   dataset_load_time=time.time()
@@ -103,7 +100,6 @@ def main():
   image_batch = load_data(batch_size)
     
   dataset_load_time = time.time() - dataset_load_time
-  print('dataset load time:', dataset_load_time)
     
   # inference
   accuracy, inference_time, iter_times = inference(interpreter, args.top_k, args.threshold, batch_size, image_batch)
