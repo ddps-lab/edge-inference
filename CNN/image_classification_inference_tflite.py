@@ -11,19 +11,6 @@ import platform
 import tensorflow as tf
 
 
-def load_labels(path, encoding='utf-8'): # 현재 쓰이지 않음
-  with open(path, 'r', encoding=encoding) as f:
-    lines = f.readlines()
-    if not lines:
-      return {}
-
-    if lines[0].split(' ', maxsplit=1)[0].isdigit():
-      pairs = [line.split(' ', maxsplit=1) for line in lines]
-      return {int(index): label.strip() for index, label in pairs}
-    else:
-      return {index: line.strip() for index, line in enumerate(lines)}
-
-
 def load_data(batch_size):
     loaded_data=[]
     image_path = './dataset/imagenet/imagenet_1000_raw/'
@@ -46,25 +33,26 @@ def inference(interpreter, top_k, threshold, batch_size, image_batch):
     iter_times=[]
     accuracy=[]
 
-    iftime_start = time.time()
+    inference_start = time.time()
 
     for i, batch in enumerate(image_batch): 
-
         batch = tf.cast(batch, tf.uint8) 
         interpreter.set_tensor(interpreter.get_input_details()[0]['index'], batch)
         start = time.perf_counter() 
         interpreter.invoke()
         iter_times.append(time.perf_counter() - start)       
         classes = classify.get_output(interpreter, top_k, threshold)
+        
         for klass in classes:
             accuracy.append(klass.score)
             
-    inference_time = time.time() - iftime_start
+    inference_time = time.time() - inference_start
     
     return accuracy, inference_time, iter_times
 
 
 def main():
+  # get arguments
   parser = argparse.ArgumentParser(
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
@@ -86,19 +74,15 @@ def main():
    
   # load model
   model_load_time = time.time()
-
   interpreter = tflite.Interpreter(args.model)
   tensor_index = interpreter.get_input_details()[0]['index']
   interpreter.resize_tensor_input(tensor_index, [batch_size, 299, 299, 3]) 
   interpreter.allocate_tensors()
-
   model_load_time = time.time() - model_load_time
     
   # load dataset
   dataset_load_time=time.time()
-
-  image_batch = load_data(batch_size)
-    
+  image_batch = load_data(batch_size)   
   dataset_load_time = time.time() - dataset_load_time
     
   # inference
