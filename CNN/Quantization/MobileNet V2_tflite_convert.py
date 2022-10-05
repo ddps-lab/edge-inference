@@ -4,7 +4,7 @@ from tensorflow.keras.applications import mobilenet_v2
 Mobilenetv2_model = tf.keras.applications.MobileNetV2(weights='imagenet')
 
 def representative_data_gen():
-  dataset_list = tf.data.Dataset.list_files('./imagenet_1000_raw/*.JPEG')
+  dataset_list = tf.data.Dataset.list_files('../dataset/imagenet/imagenet_1000_raw/*.JPEG')
   for i in range(100):
     image = next(iter(dataset_list))
     image = tf.io.read_file(image)
