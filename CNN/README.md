@@ -59,3 +59,12 @@
     ```bash
     python3 object_detection_video_inference.py --weights ./model/yolo_v5_edgetpu_tflite/yolov5s-int8_edgetpu.tflite  --source ./dataset/video/road.mp4 --data ./model/yolo_v5/coco.yaml
     ```
+
+- Object Detection tflite quantization model inference (Nvidia Jetson & Coral TPU - YOLO V5 - road video 20s/38frame)
+
+    ```bash
+    python3 object_detection_video_inference.py --weights ./model/yolo_v5_quantization_tflite/yolov5s-fp16.tflite  --source ./dataset/video/road.mp4 --data ./model/yolo_v5/coco.yaml
+    ```
+    ```bash
+    python3 object_detection_video_inference.py --weights ./model/yolo_v5_quantization_tflite/yolov5s-int8.tflite  --source ./dataset/video/road.mp4 --data ./model/yolo_v5/coco.yaml
+    ```
