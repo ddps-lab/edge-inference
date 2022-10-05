@@ -6,7 +6,7 @@ Inceptionv3_model = tf.keras.applications.InceptionV3(weights='imagenet')
 
 def representative_data_gen():
   batch_size=128
-  dataset_list = tf.data.Dataset.list_files('./dataset/imagenet/imagenet_1000_raw/*.JPEG')
+  dataset_list = tf.data.Dataset.list_files('../dataset/imagenet/imagenet_1000_raw/*.JPEG')
   dataset_list.shuffle(buffer_size=10000).batch(batch_size=batch_size)
   for i in enumerate(dataset_list.take(batch_size)):
     image = next(iter(dataset_list))
