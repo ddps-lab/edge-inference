@@ -18,9 +18,3 @@
     ```bash
     python3 ./Inception V3_tflite_batch_convert.py
     ```
-
-- Object Detection model tflite-EdgeTPU quantization convert (Yolo V5)
-    ```bash
-    python3 ../model/yolo_v5/export.py --include tflite --int8
-    ./compiler/edgetpu_compiler [tflite model]
-    ```
