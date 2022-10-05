@@ -12,3 +12,7 @@
     unzip compiler.zip
     ./compiler/edgetpu_compiler [tflite model]
     ```
+- Image Classification model tflite batch unit quantization convert (Inception V3)
+    ```bash
+    python3 ./Inception V3_tflite_batch_convert.py
+    ```
