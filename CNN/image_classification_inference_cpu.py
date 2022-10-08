@@ -42,7 +42,7 @@ def inference(interpreter, args, batch_size, image_batch):
     iter_times=[]
     accuracy=[]
 
-    iftime_start = time.time()
+    inference_start = time.time()
 
     for batch in image_batch: 
         interpreter.set_tensor(interpreter.get_input_details()[0]['index'], batch)
@@ -56,7 +56,7 @@ def inference(interpreter, args, batch_size, image_batch):
 
         accuracy.sort(reverse=True)
 
-    inference_time = time.time() - iftime_start
+    inference_time = time.time() - inference_start
     
     return accuracy, inference_time, iter_times
 
