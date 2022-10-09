@@ -17,6 +17,7 @@ EDGETPU_SHARED_LIB = {
 
 def make_interpreter(model_file):
   model_file, *device = model_file.split('@')
+  
   return tflite.Interpreter(
       model_path=model_file,
       experimental_delegates=[
@@ -34,6 +35,7 @@ def load_data(batch_size):
         image = Image.open(image_path+'/'+image_file)
         image = image.convert('RGB').resize([299,299], Image.ANTIALIAS)
         image = np.array(image)
+        
         if idx//batch_size < len(load_data):
             load_data[idx//batch_size].append(image)
         else:
