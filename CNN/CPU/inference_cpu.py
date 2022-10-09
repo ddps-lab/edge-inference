@@ -11,6 +11,7 @@ import platform
 def load_labels(path, encoding='utf-8'):
   with open(path, 'r', encoding=encoding) as f:
     lines = f.readlines()
+    
     if not lines:
       return {}
 
@@ -30,6 +31,7 @@ def load_data(batch_size):
         image = Image.open(image_path+'/'+image_file)
         image = image.convert('RGB').resize([299,299], Image.ANTIALIAS)
         image = np.array(image)
+        
         if idx//batch_size < len(load_data):
             load_data[idx//batch_size].append(image)
         else:
