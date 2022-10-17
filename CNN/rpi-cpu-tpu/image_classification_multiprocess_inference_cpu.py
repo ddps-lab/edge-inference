@@ -11,7 +11,7 @@ from multiprocessing import Manager
 import os
 
 
-def init_interpreter(model_path): # 각 프로세스는 각자의 메모리 공간을 가진다. 객체 서로 공유 불가능. -> 각 프로세스 마다 하나씩 만들어 준다.
+def init_interpreter(model_path): # 각 프로세스는 각자의 메모리 공간을 가진다. 객체 서로 공유 불가능. -> 각 프로세스 마다 interpreter 하나씩 만들어 준다.
     global model_load_time, interpreter, input_index
 
     model_load_time = time.time()
@@ -50,6 +50,8 @@ def inference(image):
 
 
 def main():
+  total_time = time.time()
+
   parser = argparse.ArgumentParser(
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
@@ -60,6 +62,9 @@ def main():
   parser.add_argument(
       '-t', '--threshold', type=float, default=0.0,
       help='Classification score threshold')
+  parser.add_argument(
+      '-p', '--processes', type=float, default=1,
+      help='Number of using processes')
   args = parser.parse_args()
 
   global top_k, threshold, iter_times, accuracy
@@ -79,24 +84,26 @@ def main():
   manager = Manager()
   accuracy = manager.list()
   iter_times = manager.list()
-  with Pool(initializer=init_interpreter, initargs=(args.model,)) as p:
-      result = p.map(inference, dataset)
+  with Pool(processes=num_processes, initializer=init_interpreter, initargs=(args.model,)) as p:
+    result = p.map(inference, dataset)   
   inference_time = time.time() - inference_time
 
   model_load_time = result[-1][0]
   iter_times = result[-1][1]
   accuracy = result[-1][2]
 
+  total_time = time.time() - total_time
+
   print('***** TF-lite matric *****')
   print('accuracy = {:.3f}'.format(np.sum(accuracy)/(len(dataset)*len(dataset[0]))))
   print('model_load_time = {:.3f}'.format(model_load_time))
   print('dataset_load_time = {:.3f}'.format(dataset_load_time))
   print('inference_time = {:.3f}'.format(inference_time))
-  print('inference_time(avg) = {:.3f}'.format(np.sum(iter_times) / (len(dataset)*len(dataset[0]))))
-  print('IPS = {:.3f}'.format((len(dataset)*len(dataset[0])) / (model_load_time + dataset_load_time + inference_time)))
-  print('IPS(inf) = {:.3f}'.format((len(dataset)*len(dataset[0])) / np.sum(iter_times)))
+  print('inference_time(avg) = {:.3f}'.format(inference_time / (len(dataset)*len(dataset[0]))))
+  print('invoke_time(avg) = {:.3f}'.format(np.sum(iter_times) / (len(dataset)*len(dataset[0]))))
+  print('IPS = {:.3f}'.format((len(dataset)*len(dataset[0])) / total_time))
+  print('IPS(inf) = {:.3f}'.format((len(dataset)*len(dataset[0])) / inferenc_time))
   
 
 if __name__ == '__main__':
   main()
-
