@@ -11,14 +11,15 @@ from multiprocessing import Manager
 import os
 
 
-def init_interpreter(model_path): # 각 프로세스는 각자의 메모리 공간을 가진다. 객체 서로 공유 불가능. -> 각 프로세스 마다 interpreter 하나씩 만들어 준다.
+def init_interpreter(model_path):
     global model_load_time, interpreter, input_index
 
     model_load_time = time.time()
     interpreter = tflite.Interpreter(model_path)
-    input_index = interpreter.get_input_details()[0]['index']
     interpreter.allocate_tensors()
     model_load_time = time.time() - model_load_time
+
+    input_index = interpreter.get_input_details()[0]['index']
 
 
 def load_data(input_shape):
@@ -29,7 +30,7 @@ def load_data(input_shape):
     for image_file in input_files:
         image = Image.open(image_path+'/'+image_file)
         image = image.convert('RGB').resize([input_shape[1], input_shape[2]], Image.ANTIALIAS)
-        image = np.array(image)
+        image = np.array(image, dtype=np.uint8)
         image = np.expand_dims(image, axis=0)
         load_data.append(image)
 
@@ -40,9 +41,9 @@ def inference(image):
     interpreter.set_tensor(input_index, image)
     start = time.perf_counter() 
     interpreter.invoke()
-    iter_times.append(time.perf_counter() - start)      
-    classes = classify.get_output(interpreter, top_k, threshold)
+    iter_times.append(time.perf_counter() - start)  
     
+    classes = classify.get_output(interpreter, top_k, threshold)
     for klass in classes:
         accuracy.append(klass.score)
 
@@ -63,37 +64,43 @@ def main():
       '-t', '--threshold', type=float, default=0.0,
       help='Classification score threshold')
   parser.add_argument(
-      '-p', '--processes', type=float, default=1,
-      help='Number of using processes')
+      '-p', '--process', type=int, default=4)
   args = parser.parse_args()
 
   global top_k, threshold, iter_times, accuracy
 
   top_k = args.top_k
   threshold = args.threshold
+  num_processes = args.process
 
-  interpreter = tflite.Interpreter(args.model) # input shape 알아내기 위해 
+  # Get input shape
+  interpreter = tflite.Interpreter(args.model)
   input_shape = interpreter.get_input_details()[0]['shape']
   del interpreter
   
+  # Get dataset
   dataset_load_time=time.time()
   dataset = load_data(input_shape)
   dataset_load_time = time.time() - dataset_load_time
   
-  inference_time = time.time()  
+  # Create sharing variables
   manager = Manager()
   accuracy = manager.list()
   iter_times = manager.list()
+  
+  # Multiprocess inference
+  inference_time = time.time()
   with Pool(processes=num_processes, initializer=init_interpreter, initargs=(args.model,)) as p:
-    result = p.map(inference, dataset)   
+      result = p.map(inference, dataset, chunksize=1)
   inference_time = time.time() - inference_time
-
+  
   model_load_time = result[-1][0]
   iter_times = result[-1][1]
   accuracy = result[-1][2]
 
   total_time = time.time() - total_time
-
+  
+  print(args.model)
   print('***** TF-lite matric *****')
   print('accuracy = {:.3f}'.format(np.sum(accuracy)/(len(dataset)*len(dataset[0]))))
   print('model_load_time = {:.3f}'.format(model_load_time))
@@ -102,8 +109,8 @@ def main():
   print('inference_time(avg) = {:.3f}'.format(inference_time / (len(dataset)*len(dataset[0]))))
   print('invoke_time(avg) = {:.3f}'.format(np.sum(iter_times) / (len(dataset)*len(dataset[0]))))
   print('IPS = {:.3f}'.format((len(dataset)*len(dataset[0])) / total_time))
-  print('IPS(inf) = {:.3f}'.format((len(dataset)*len(dataset[0])) / inferenc_time))
-  
+  print('IPS(inf) = {:.3f}'.format((len(dataset)*len(dataset[0])) / inference_time))
+  print('total_time = {:.3f}'.format(total_time))
 
 if __name__ == '__main__':
   main()
