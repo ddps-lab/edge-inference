@@ -84,7 +84,7 @@ def main():
   interpreter.allocate_tensors()
   model_load_time = time.time() - model_load_time
 
-  # Get input shape
+  # Get input index, shape
   input_details = interpreter.get_input_details()
   input_index = input_details[0]['index']
   input_shape = input_details[0]['shape']
@@ -108,7 +108,7 @@ def main():
   print('dataset_load_time = {:.3f}'.format(dataset_load_time))
   print('inference_time = {:.3f}'.format(inference_time))
   print('inference_time(avg) = {:.3f}'.format(inference_time / (len(dataset)*len(dataset[0]))))
-  print('invoke_time(avg) = {:.4f}'.format(np.sum(iter_times) / (len(dataset)*len(dataset[0]))))
+  print('invoke_time(avg) = {:.3f}'.format(np.sum(iter_times) / (len(dataset)*len(dataset[0]))))
   print('IPS = {:.3f}'.format((len(dataset)*len(dataset[0])) / total_time))
   print('IPS(inf) = {:.3f}'.format((len(dataset)*len(dataset[0])) / inference_time))
   print('total_time = {:.3f}'.format(total_time))
