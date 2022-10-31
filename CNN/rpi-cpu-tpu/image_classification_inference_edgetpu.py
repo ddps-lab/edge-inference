@@ -43,17 +43,16 @@ def load_data(input_shape):
 def inference(dataset, interpreter, input_index, top_k, threshold):
     iter_times, accuracy = [], []
 
-    for image in dataset:
-        inference_time = time.perf_counter()
+    for image in dataset:     
         interpreter.set_tensor(input_index, image)
+        inference_time = time.perf_counter()
         interpreter.invoke()
+        iter_times.append(time.perf_counter()-inference_time)
 
         classes = classify.get_output(interpreter, top_k, threshold) 
         for klass in classes:
             accuracy.append(klass.score)
-       
-        iter_times.append(time.perf_counter()-inference_time)
-
+      
     return accuracy, iter_times
 
 
