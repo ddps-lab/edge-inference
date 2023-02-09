@@ -6,6 +6,7 @@ import tensorflow as tf
 import requests
 import json
 import roundrobin
+from numpy import random
 
 def mobilenet_load_image(image_path):
     return tf.keras.preprocessing.image.load_img(
@@ -84,8 +85,22 @@ json_response = requests.post(inceptionv3_url, data=inceptionv3_data, headers=he
 inceptionv3_predictions = json.loads(json_response.text)['predictions']
 
 
-get_weighted_smooth = roundrobin.smooth([(postprocess(mobilenetv1_predictions), 2), (postprocess(mobilenetv2_predictions), 4), (postprocess(inceptionv3_predictions), 4)])
-for _ in range(10):
-  print(get_weighted_smooth())
-  os.system('date')
-  time.sleep(0.1)
+get_weighted_smooth = roundrobin.smooth([(postprocess(mobilenetv1_predictions), 1), (postprocess(mobilenetv2_predictions), 3), (postprocess(inceptionv3_predictions), 6)])
+ret_val=random.poisson(10,10)
+
+event = []
+
+request_start = time.time()
+for m in ret_val:
+    print('request', m)
+    event_start = time.time()
+    for i in range(m):
+        print(get_weighted_smooth())
+    event.append(time.time() - event_start)
+request_end = time.time()-request_start
+
+
+print("Return value:", ret_val)
+print("Length of return value:", len(ret_val))
+print("total request time", request_end)
+print("event time", event)
