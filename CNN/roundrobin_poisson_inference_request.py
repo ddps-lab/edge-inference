@@ -77,15 +77,15 @@ mobilenetv2_data = json.dumps({"signature_name": "serving_default", "instances":
 inceptionv3_data = json.dumps({"signature_name": "serving_default", "instances": inceptionv3_test_image_preprocessed.tolist()})
 
 headers = {"content-type": "application/json"}
-json_response = requests.post(mobilenetv1_url, data=mobilenetv1_data, headers=headers)
-mobilenetv1_predictions = json.loads(json_response.text)['predictions']
-json_response = requests.post(mobilenetv2_url, data=mobilenetv2_data, headers=headers)
-mobilenetv2_predictions = json.loads(json_response.text)['predictions']
-json_response = requests.post(inceptionv3_url, data=inceptionv3_data, headers=headers)
-inceptionv3_predictions = json.loads(json_response.text)['predictions']
+mobilenetv1_json_response = requests.post(mobilenetv1_url, data=mobilenetv1_data, headers=headers)
+mobilenetv1_predictions = json.loads(mobilenetv1_json_response.text)['predictions']
+mobilenetv2_json_response = requests.post(mobilenetv2_url, data=mobilenetv2_data, headers=headers)
+mobilenetv2_predictions = json.loads(mobilenetv2_json_response.text)['predictions']
+inceptionv3_json_response = requests.post(inceptionv3_url, data=inceptionv3_data, headers=headers)
+inceptionv3_predictions = json.loads(inceptionv3_json_response.text)['predictions']
 
 
-get_weighted_smooth = roundrobin.smooth([(postprocess(mobilenetv1_predictions), 1), (postprocess(mobilenetv2_predictions), 3), (postprocess(inceptionv3_predictions), 6)])
+get_weighted_smooth = roundrobin.smooth([(mobilenetv1_json_response, 1), (mobilenetv2_json_response, 3), (inceptionv3_json_response, 6)])
 ret_val=random.poisson(10,10)
 
 event = []
