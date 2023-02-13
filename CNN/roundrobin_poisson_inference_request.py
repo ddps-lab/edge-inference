@@ -88,11 +88,18 @@ datas = {
         {"signature_name": "serving_default", "instances": inceptionv3_test_image_preprocessed.tolist()})
 }
 
+time_tracking = {}
+
 
 def ModelRequest(model, data):
+    start = time.time()
     url = SERVER_URL + model + ':predict'
     res = requests.post(url, data, headers)
     response = json.loads(res.text)['predictions']
+    end_time = time.time() - start
+
+    key = model + " " + str(start)
+    time_tracking[key] = end_time
 
     return response
 
@@ -100,31 +107,38 @@ def ModelRequest(model, data):
 get_weighted_smooth = roundrobin.smooth(models)
 model_sequence = ''.join([get_weighted_smooth() for _ in range(MAX)])
 
-poisson_distribution = random.poisson(MAX, MAX)
+RoundPerEvent = 10
+TotalEvent = 100
+poisson_distribution = random.poisson(RoundPerEvent, TotalEvent)
 
 if __name__ == "__main__":
     event_time = []
     request_start = time.time()
+    threads = []
 
-    for e in poisson_distribution:
-        print('request', e)
+    for events in poisson_distribution:
+        print('request', events)
         event_start = time.time()
 
-        threads = []
-
-        for model in model_sequence:
+        for model_idx in range(events):
+            model = model_sequence[model_idx % len(model_sequence)]
             th = Thread(target=ModelRequest, args=(model, datas[model]))
             th.start()
             threads.append(th)
 
             # case : linear
             # ModelRequest(model, datas[model])
-        for thread in threads:
-            thread.join()
+
         event_time.append(time.time() - event_start)
+    for thread in threads:
+        thread.join()
     request_end = time.time() - request_start
 
     print("Return value:", poisson_distribution)
     print("Length of return value:", len(poisson_distribution))
     print("total request time", request_end)
     print("event time", event_time)
+
+    print(time_tracking)
+    with open(str(time.time()) + '.txt', 'w') as file:
+        file.write(json.dumps(time_tracking))
