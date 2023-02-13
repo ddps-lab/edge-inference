@@ -97,6 +97,8 @@ def ModelRequest(model, data):
     res = requests.post(url, data, headers)
     response = json.loads(res.text)['predictions']
     end_time = time.time() - inference_start
+    print(inference_start)
+    print(time.time())
     print(end_time)
     key = model + " " + str(inference_start)
     time_tracking[key] = end_time
@@ -112,7 +114,6 @@ TotalEvent = 10
 poisson_distribution = random.poisson(RoundPerEvent, TotalEvent)
 
 if __name__ == "__main__":
-    event_time = []
     request_start = time.time()
     threads = []
 
@@ -129,7 +130,6 @@ if __name__ == "__main__":
             # case : linear
             # ModelRequest(model, datas[model])
 
-        event_time.append(time.time() - event_start)
     for thread in threads:
         thread.join()
     request_end = time.time() - request_start
@@ -137,7 +137,6 @@ if __name__ == "__main__":
     print("Return value:", poisson_distribution)
     print("Length of return value:", len(poisson_distribution))
     print("total request time", request_end)
-    print("event time", event_time)
 
     print(time_tracking)
     with open(str(time.time()) + '.txt', 'w') as file:
