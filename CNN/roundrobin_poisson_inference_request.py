@@ -7,6 +7,7 @@ import requests
 import json
 import roundrobin
 from numpy import random
+from threading import Thread
 
 
 def mobilenet_load_image(image_path):
@@ -96,20 +97,31 @@ def ModelRequest(model, data):
 
 
 get_weighted_smooth = roundrobin.smooth(models)
-ret_val = random.poisson(10, 10)
+poisson_distribution = random.poisson(10, 10)
 
-event = []
+if __name__ == "__main__":
+    event_time = []
+    request_start = time.time()
 
-request_start = time.time()
-for model in ret_val:
-    print('request', model)
-    event_start = time.time()
-    for i in range(model):
-        ModelRequest(model, datas[model])
-    event.append(time.time() - event_start)
-request_end = time.time() - request_start
+    for e in poisson_distribution:
+        print('request', e)
+        event_start = time.time()
 
-print("Return value:", ret_val)
-print("Length of return value:", len(ret_val))
-print("total request time", request_end)
-print("event time", event)
+        threads = []
+
+        for model in get_weighted_smooth:
+            th = Thread(target=ModelRequest, args=(model, datas[model]))
+            th.start()
+            threads.append(th)
+
+            # case : linear
+            # ModelRequest(model, datas[model])
+        for thread in threads:
+            thread.join()
+        event_time.append(time.time() - event_start)
+    request_end = time.time() - request_start
+
+    print("Return value:", poisson_distribution)
+    print("Length of return value:", len(poisson_distribution))
+    print("total request time", request_end)
+    print("event time", event_time)
