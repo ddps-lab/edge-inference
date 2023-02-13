@@ -8,26 +8,32 @@ import json
 import roundrobin
 from numpy import random
 
+
 def mobilenet_load_image(image_path):
     return tf.keras.preprocessing.image.load_img(
         image_path,
         target_size=[224, 224])
+
 
 def inception_load_image(image_path):
     return tf.keras.preprocessing.image.load_img(
         image_path,
         target_size=[299, 299])
 
+
 def image_to_array(image):
     return tf.keras.preprocessing.image.img_to_array(image, dtype=np.int32)
+
 
 def mobilenetv1_image_preprocess(image_array):
     return tf.keras.applications.mobilenet.preprocess_input(
         image_array[tf.newaxis, ...])
 
+
 def mobilenetv2_image_preprocess(image_array):
     return tf.keras.applications.mobilenet_v2.preprocess_input(
         image_array[tf.newaxis, ...])
+
 
 def inceptionv3_image_preprocess(image_array):
     return tf.keras.applications.inception_v3.preprocess_input(
@@ -43,6 +49,7 @@ response = requests.get(imagenet_labels_url)
 labels = [x for x in response.text.split("\n") if x != ""][1:]
 # Convert the labels to the TensorFlow data format
 tf_labels = tf.constant(labels, dtype=tf.string)
+
 
 def postprocess(prediction, labels=tf_labels):
     """Convert from probs to labels."""
@@ -67,38 +74,40 @@ mobilenetv1_test_image_preprocessed = mobilenetv1_image_preprocess(mobilenetv1_t
 mobilenetv2_test_image_preprocessed = mobilenetv2_image_preprocess(mobilenetv2_test_image_array)
 inceptionv3_test_image_preprocessed = inceptionv3_image_preprocess(inceptionv3_test_image_array)
 
-
-mobilenetv1_url = 'http://172.17.0.2:8501/v1/models/mobilenetv1:predict'
-mobilenetv2_url = 'http://172.17.0.2:8501/v1/models/mobilenetv2:predict'
-inceptionv3_url = 'http://172.17.0.2:8501/v1/models/inceptionv3:predict'
-
-mobilenetv1_data = json.dumps({"signature_name": "serving_default", "instances": mobilenetv1_test_image_preprocessed.tolist()})
-mobilenetv2_data = json.dumps({"signature_name": "serving_default", "instances": mobilenetv2_test_image_preprocessed.tolist()})
-inceptionv3_data = json.dumps({"signature_name": "serving_default", "instances": inceptionv3_test_image_preprocessed.tolist()})
-
+SERVER_URL = "http://172.17.0.2:8501/v1/models/"
 headers = {"content-type": "application/json"}
-mobilenetv1_json_response = requests.post(mobilenetv1_url, data=mobilenetv1_data, headers=headers)
-mobilenetv1_predictions = json.loads(mobilenetv1_json_response.text)['predictions']
-mobilenetv2_json_response = requests.post(mobilenetv2_url, data=mobilenetv2_data, headers=headers)
-mobilenetv2_predictions = json.loads(mobilenetv2_json_response.text)['predictions']
-inceptionv3_json_response = requests.post(inceptionv3_url, data=inceptionv3_data, headers=headers)
-inceptionv3_predictions = json.loads(inceptionv3_json_response.text)['predictions']
+models = [('mobilenetv1', 1), ('mobilenetv2', 3), ('inceptionv3', 6)]
+datas = {
+    'mobilenetv1': json.dumps(
+        {"signature_name": "serving_default", "instances": mobilenetv1_test_image_preprocessed.tolist()}),
+    'mobilenetv2': json.dumps(
+        {"signature_name": "serving_default", "instances": mobilenetv2_test_image_preprocessed.tolist()}),
+    'inceptionv3': json.dumps(
+        {"signature_name": "serving_default", "instances": inceptionv3_test_image_preprocessed.tolist()})
+}
 
 
-get_weighted_smooth = roundrobin.smooth([(mobilenetv1_json_response, 1), (mobilenetv2_json_response, 3), (inceptionv3_json_response, 6)])
-ret_val=random.poisson(10,10)
+def ModelRequest(model, data):
+    url = SERVER_URL + model + ':predict'
+    res = requests.post(url, data, headers)
+    response = json.loads(res.text)['predictions']
+
+    return response
+
+
+get_weighted_smooth = roundrobin.smooth(models)
+ret_val = random.poisson(10, 10)
 
 event = []
 
 request_start = time.time()
-for m in ret_val:
-    print('request', m)
+for model in ret_val:
+    print('request', model)
     event_start = time.time()
-    for i in range(m):
-        print(get_weighted_smooth())
+    for i in range(model):
+        ModelRequest(model, datas[model])
     event.append(time.time() - event_start)
-request_end = time.time()-request_start
-
+request_end = time.time() - request_start
 
 print("Return value:", ret_val)
 print("Length of return value:", len(ret_val))
