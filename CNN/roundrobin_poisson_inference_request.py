@@ -93,10 +93,13 @@ time_tracking = {}
 
 def ModelRequest(model, data):
     inference_start = time.time()
+
     url = SERVER_URL + model + ':predict'
     res = requests.post(url, data, headers)
     response = json.loads(res.text)['predictions']
+
     end_time = time.time() - inference_start
+
     key = model + " " + str(inference_start)
     time_tracking[key] = end_time
 
@@ -125,6 +128,10 @@ if __name__ == "__main__":
 
             # case : linear
             # ModelRequest(model, datas[model])
+
+        while True:
+            if time.time() - event_start >=1:
+                break
 
     for thread in threads:
         thread.join()
