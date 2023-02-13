@@ -92,13 +92,13 @@ time_tracking = {}
 
 
 def ModelRequest(model, data):
-    start = time.time()
+    inference_start = time.time()
     url = SERVER_URL + model + ':predict'
     res = requests.post(url, data, headers)
     response = json.loads(res.text)['predictions']
-    end_time = time.time() - start
-
-    key = model + " " + str(start)
+    end_time = time.time() - inference_start
+    print(end_time)
+    key = model + " " + str(inference_start)
     time_tracking[key] = end_time
 
     return response
