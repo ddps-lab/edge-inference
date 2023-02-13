@@ -109,7 +109,7 @@ model_sequence = [get_weighted_smooth() for _ in range(MAX)]
 print(get_weighted_smooth)
 print(model_sequence)
 RoundPerEvent = 10
-TotalEvent = 100
+TotalEvent = 10
 poisson_distribution = random.poisson(RoundPerEvent, TotalEvent)
 
 if __name__ == "__main__":
