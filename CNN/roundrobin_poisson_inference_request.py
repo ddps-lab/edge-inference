@@ -77,6 +77,7 @@ inceptionv3_test_image_preprocessed = inceptionv3_image_preprocess(inceptionv3_t
 
 SERVER_URL = "http://172.17.0.2:8501/v1/models/"
 headers = {"content-type": "application/json"}
+MAX = 10
 models = [('mobilenetv1', 1), ('mobilenetv2', 3), ('inceptionv3', 6)]
 datas = {
     'mobilenetv1': json.dumps(
@@ -97,7 +98,9 @@ def ModelRequest(model, data):
 
 
 get_weighted_smooth = roundrobin.smooth(models)
-poisson_distribution = random.poisson(10, 10)
+sequence = ''.join([get_weighted_smooth() for _ in range(MAX)])
+
+poisson_distribution = random.poisson(MAX, MAX)
 
 if __name__ == "__main__":
     event_time = []
