@@ -106,7 +106,6 @@ def ModelRequest(model, data):
 
 get_weighted_smooth = roundrobin.smooth(models)
 model_sequence = [get_weighted_smooth() for _ in range(MAX)]
-print(get_weighted_smooth)
 print(model_sequence)
 RoundPerEvent = 10
 TotalEvent = 10
@@ -123,7 +122,6 @@ if __name__ == "__main__":
 
         for model_idx in range(events):
             model = model_sequence[model_idx % len(model_sequence)]
-            print(model)
             th = Thread(target=ModelRequest, args=(model, datas[model]))
             th.start()
             threads.append(th)
