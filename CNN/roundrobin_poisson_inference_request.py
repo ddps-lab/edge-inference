@@ -105,8 +105,8 @@ def ModelRequest(model, data):
 
 
 get_weighted_smooth = roundrobin.smooth(models)
-model_sequence = ''.join([get_weighted_smooth() for _ in range(MAX)])
-
+model_sequence = [].join([get_weighted_smooth() for _ in range(MAX)])
+print(model_sequence)
 RoundPerEvent = 10
 TotalEvent = 100
 poisson_distribution = random.poisson(RoundPerEvent, TotalEvent)
