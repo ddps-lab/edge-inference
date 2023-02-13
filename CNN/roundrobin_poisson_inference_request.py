@@ -122,6 +122,7 @@ if __name__ == "__main__":
 
         for model_idx in range(events):
             model = model_sequence[model_idx % len(model_sequence)]
+            print(model)
             th = Thread(target=ModelRequest, args=(model, datas[model]))
             th.start()
             threads.append(th)
