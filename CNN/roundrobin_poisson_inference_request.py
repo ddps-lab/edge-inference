@@ -97,9 +97,6 @@ def ModelRequest(model, data):
     res = requests.post(url, data, headers)
     response = json.loads(res.text)['predictions']
     end_time = time.time() - inference_start
-    print(inference_start)
-    print(time.time())
-    print(end_time)
     key = model + " " + str(inference_start)
     time_tracking[key] = end_time
 
@@ -108,7 +105,6 @@ def ModelRequest(model, data):
 
 get_weighted_smooth = roundrobin.smooth(models)
 model_sequence = [get_weighted_smooth() for _ in range(MAX)]
-print(model_sequence)
 RoundPerEvent = 10
 TotalEvent = 10
 poisson_distribution = random.poisson(RoundPerEvent, TotalEvent)
