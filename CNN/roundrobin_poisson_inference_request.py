@@ -98,7 +98,7 @@ def ModelRequest(model, data):
 
 
 get_weighted_smooth = roundrobin.smooth(models)
-sequence = ''.join([get_weighted_smooth() for _ in range(MAX)])
+model_sequence = ''.join([get_weighted_smooth() for _ in range(MAX)])
 
 poisson_distribution = random.poisson(MAX, MAX)
 
@@ -112,7 +112,7 @@ if __name__ == "__main__":
 
         threads = []
 
-        for model in get_weighted_smooth:
+        for model in model_sequence:
             th = Thread(target=ModelRequest, args=(model, datas[model]))
             th.start()
             threads.append(th)
