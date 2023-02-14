@@ -109,7 +109,7 @@ def ModelRequest(model, data):
 
 get_weighted_smooth = roundrobin.smooth(models)
 model_sequence = [get_weighted_smooth() for _ in range(MAX)]
-RoundPerEvent = 10
+RoundPerEvent = 5
 TotalEvent = 1
 poisson_distribution = random.poisson(RoundPerEvent, TotalEvent)
 
@@ -119,7 +119,7 @@ if __name__ == "__main__":
 
     for events in poisson_distribution:
         event_start = time.time()
-
+        print('request', events)
         for model_idx in range(events):
             model = model_sequence[model_idx % len(model_sequence)]
             th = Thread(target=ModelRequest, args=(model, datas[model]))
