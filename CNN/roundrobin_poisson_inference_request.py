@@ -98,9 +98,10 @@ def ModelRequest(model, data):
     res = requests.post(url, data, headers)
     response = json.loads(res.text)['predictions']
 
-    end_time = time.time() - inference_start
+    inference_end = time.time()
+    end_time = inference_end - inference_start
 
-    key = model + " " + str(inference_start)
+    key = model + " " + str(inference_start) + " " + str(inference_end)
     time_tracking[key] = end_time
 
     return response
@@ -130,7 +131,7 @@ if __name__ == "__main__":
             # ModelRequest(model, datas[model])
 
         while True:
-            if time.time() - event_start >=1:
+            if time.time() - event_start >= 1:
                 break
 
     for thread in threads:
