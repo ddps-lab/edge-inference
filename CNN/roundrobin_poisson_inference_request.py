@@ -102,6 +102,9 @@ def ModelRequest(model, data):
     end_time = inference_end - inference_start
 
     key = model + " " + str(inference_start) + " " + str(inference_end)
+
+    print(key, end_time)
+
     time_tracking[key] = end_time
 
     return response
