@@ -109,11 +109,11 @@ def ModelRequest(model, data):
 
 get_weighted_smooth = roundrobin.smooth(models)
 model_sequence = [get_weighted_smooth() for _ in range(MAX)]
-RoundPerEvent = 5
-TotalEvent = 3
+RoundPerEvent = 10
+TotalEvent = 5
 poisson_distribution = random.poisson(RoundPerEvent, TotalEvent)
 
-sleep_val = 10
+sleep_val = 1
 if __name__ == "__main__":
     request_start = time.time()
     threads = []
