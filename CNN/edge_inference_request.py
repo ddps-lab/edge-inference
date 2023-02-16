@@ -90,10 +90,14 @@ def save_model(model, saved_model_dir):
 
 loaded_models = {}
 
-for model in models.keys():
-    path = f'{model}_saved_model'
-    save_model(model, path)
-    loaded_models[model] = tf.keras.models.load_model(path)
+# for model in models.keys():
+#     path = f'{model}_saved_model'
+#     save_model(model, path)
+#     loaded_models[model] = tf.keras.models.load_model(path)
+
+path = 'mobilenet_saved_model'
+save_model('mobilenet', path)
+loaded_models['mobilenet'] = tf.keras.models.load_model(path)
 
 app = Flask(__name__)
 
