@@ -7,9 +7,9 @@ import shutil
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
   tf.config.experimental.set_virtual_device_configuration(gpus[0],
-        [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=0.18*1024)])
+        [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=0.3*1024)])
 
-  print("1:", psutil.virtual_memory())
+  #print("1:", psutil.virtual_memory())
 
 from tensorflow.keras.applications import (
         mobilenet,
@@ -18,15 +18,15 @@ from tensorflow.keras.applications import (
         )
 
 models = {
-        'mobilenet':mobilenet,
-        'mobilenet_v2':mobilenet_v2,
-        'inception_v3':inception_v3
+        'mobilenet': mobilenet,
+        'mobilenet_v2': mobilenet_v2,
+        'inception_v3': inception_v3
         }
 
 models_detail = {
-        'mobilenet':mobilenet.MobileNet(weights='imagenet'),
-        'mobilenet_v2':mobilenet_v2.MobileNetV2(weights='imagenet'),
-        'inception_v3':inception_v3.InceptionV3(weights='imagenet')
+        'mobilenet': mobilenet.MobileNet(weights='imagenet'),
+        'mobilenet_v2': mobilenet_v2.MobileNetV2(weights='imagenet'),
+        'inception_v3': inception_v3.InceptionV3(weights='imagenet')
         }
 
 def mobilenet_load_image(image_path):
