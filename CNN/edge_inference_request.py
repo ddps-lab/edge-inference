@@ -3,6 +3,7 @@ import tensorflow as tf
 import numpy as np
 import psutil
 import shutil
+import os
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
@@ -95,9 +96,11 @@ loaded_models = {}
 #     save_model(model, path)
 #     loaded_models[model] = tf.keras.models.load_model(path)
 
-path = 'mobilenet_saved_model'
-save_model('mobilenet', path)
-loaded_models['mobilenet'] = tf.keras.models.load_model(path)
+model_path = 'mobilenet_saved_model'
+if os.path.isdir(model_path) == False:
+    print('model save')
+    save_model('mobilenet', model_path)
+loaded_models['mobilenet'] = tf.keras.models.load_model(model_path)
 
 app = Flask(__name__)
 
