@@ -107,6 +107,7 @@ app = Flask(__name__)
 @app.route('/mobilenetv1')
 def mobilenetv1():
     result = loaded_models['mobilenet'].predict(mobilenetv1_test_image_preprocessed)
-    return result
+    print(result)
+    return 'mobilenetv1 inference success'
 
 app.run(host='localhost', port=5001)
