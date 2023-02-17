@@ -119,13 +119,13 @@ def mobilenetv1():
     return 'mobilenetv1 inference success'
 
 @app.route('/mobilenetv2')
-def mobilenetv1():
+def mobilenetv2():
     result = loaded_models['mobilenet_v2'].predict(mobilenetv1_test_image_preprocessed)
     print(result)
     return 'mobilenetv2 inference success'
 
 @app.route('/inception_v3')
-def mobilenetv1():
+def mobilenetv3():
     result = loaded_models['inception_v3'].predict(mobilenetv1_test_image_preprocessed)
     print(result)
     return 'inceptionv3 inference success'
