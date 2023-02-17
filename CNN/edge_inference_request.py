@@ -1,7 +1,6 @@
 from flask import Flask
 import tensorflow as tf
 import numpy as np
-import psutil
 import shutil
 import os
 
@@ -11,8 +10,6 @@ if gpus:
         gpus[0],
         [tf.config.experimental.VirtualDeviceConfiguration(
             memory_limit=0.6 * 1024)])
-
-    # print("1:", psutil.virtual_memory())
 
 from tensorflow.keras.applications import (
     mobilenet,
