@@ -7,28 +7,30 @@ import os
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
-  tf.config.experimental.set_virtual_device_configuration(gpus[0],
-        [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=0.6*1024)])
+    tf.config.experimental.set_virtual_device_configuration(gpus[0],
+                                                            [tf.config.experimental.VirtualDeviceConfiguration(
+                                                                memory_limit=0.6 * 1024)])
 
-  #print("1:", psutil.virtual_memory())
+    # print("1:", psutil.virtual_memory())
 
 from tensorflow.keras.applications import (
-        mobilenet,
-        mobilenet_v2,
-        inception_v3
-        )
+    mobilenet,
+    mobilenet_v2,
+    inception_v3
+)
 
 models = {
-        'mobilenet': mobilenet,
-        'mobilenet_v2': mobilenet_v2,
-        'inception_v3': inception_v3
-        }
+    'mobilenet': mobilenet,
+    'mobilenet_v2': mobilenet_v2,
+    'inception_v3': inception_v3
+}
 
 models_detail = {
-        'mobilenet': mobilenet.MobileNet(weights='imagenet'),
-        'mobilenet_v2': mobilenet_v2.MobileNetV2(weights='imagenet'),
-        'inception_v3': inception_v3.InceptionV3(weights='imagenet')
-        }
+    'mobilenet': mobilenet.MobileNet(weights='imagenet'),
+    'mobilenet_v2': mobilenet_v2.MobileNetV2(weights='imagenet'),
+    'inception_v3': inception_v3.InceptionV3(weights='imagenet')
+}
+
 
 def mobilenet_load_image(image_path):
     return tf.keras.preprocessing.image.load_img(
@@ -45,9 +47,11 @@ def inception_load_image(image_path):
 def image_to_array(image):
     return tf.keras.preprocessing.image.img_to_array(image, dtype=np.int32)
 
+
 def image_preprocess(image_array, model_name):
     return models[model_name].preprocess_input(
         image_array[tf.newaxis, ...])
+
 
 # def mobilenetv1_image_preprocess(image_array):
 #     return mobilenet.preprocess_input(
@@ -89,6 +93,7 @@ def save_model(model, saved_model_dir):
     shutil.rmtree(saved_model_dir, ignore_errors=True)
     model.save(saved_model_dir, include_optimizer=False, save_format='tf')
 
+
 loaded_models = {}
 
 # for model in models.keys():
@@ -97,17 +102,33 @@ loaded_models = {}
 #     loaded_models[model] = tf.keras.models.load_model(path)
 
 model_path = 'mobilenet_saved_model'
-if os.path.isdir(model_path) == False:
-    print('model save')
-    save_model('mobilenet', model_path)
-loaded_models['mobilenet'] = tf.keras.models.load_model(model_path)
+model_names = models_detail.keys()
+for model_name in model_names:
+    if os.path.isdir(model_path) == False:
+        print('model save')
+        save_model(model_name, model_name + '_saved_model')
+    loaded_models[model_name] = tf.keras.models.load_model(model_path)
 
 app = Flask(__name__)
+
 
 @app.route('/mobilenetv1')
 def mobilenetv1():
     result = loaded_models['mobilenet'].predict(mobilenetv1_test_image_preprocessed)
     print(result)
     return 'mobilenetv1 inference success'
+
+@app.route('/mobilenetv2')
+def mobilenetv1():
+    result = loaded_models['mobilenet_v2'].predict(mobilenetv1_test_image_preprocessed)
+    print(result)
+    return 'mobilenetv2 inference success'
+
+@app.route('/inception_v3')
+def mobilenetv1():
+    result = loaded_models['inception_v3'].predict(mobilenetv1_test_image_preprocessed)
+    print(result)
+    return 'inceptionv3 inference success'
+
 
 app.run(host='localhost', port=5001)
