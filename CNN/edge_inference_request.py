@@ -3,6 +3,7 @@ import tensorflow as tf
 import numpy as np
 import shutil
 import os
+import time
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
@@ -89,23 +90,29 @@ app = Flask(__name__)
 
 @app.route('/mobilenetv1')
 def mobilenetv1():
+    inference_start_time = time.time()
     result = loaded_models['mobilenet'].predict(mobilenetv1_test_image_preprocessed)
+    inference_time = time.time() - inference_start_time
     print(result)
-    return 'mobilenetv1 inference success'
+    return f'mobilenetv1 inference success\ntime:{inference_time}\n'
 
 
 @app.route('/mobilenetv2')
 def mobilenetv2():
+    inference_start_time = time.time()
     result = loaded_models['mobilenet_v2'].predict(mobilenetv2_test_image_preprocessed)
+    inference_time = time.time() - inference_start_time
     print(result)
-    return 'mobilenetv2 inference success'
+    return f'mobilenetv2 inference success\ntime:{inference_time}\n'
 
 
 @app.route('/inceptionv3')
 def inceptionv3():
+    inference_start_time = time.time()
     result = loaded_models['inception_v3'].predict(inceptionv3_test_image_preprocessed)
+    inference_time = time.time() - inference_start_time
     print(result)
-    return 'inceptionv3 inference success'
+    return f'inceptionv3 inference success\ntime:{inference_time}\n'
 
 
 app.run(host='localhost', port=5001)
