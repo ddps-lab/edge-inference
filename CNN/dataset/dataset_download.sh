@@ -18,7 +18,7 @@ mkdir coco_2017
 curl -O https://edge-inference.s3.us-west-2.amazonaws.com/CNN/dataset/coco_2017/val_dataset.py
 python3 val_dataset.py
 mv val_dataset.py ./coco_2017
-unzip -q coco2017val.zip -d ../model/yolo_v5/datasets && rm coco2017val.zip
+unzip -q coco2017val.zip -d ../model/yolov5/datasets && rm coco2017val.zip
 
 
 #object detection video dataset
