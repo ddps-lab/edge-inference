@@ -76,12 +76,12 @@ def save_model(model, saved_model_dir):
 
 loaded_models = {}
 
-model_path = 'mobilenet_saved_model'
 model_names = models_detail.keys()
 for model_name in model_names:
+    model_path = f'{model_name}_saved_model'
     if os.path.isdir(model_path) == False:
         print('model save')
-        save_model(model_name, model_name + '_saved_model')
+        save_model(model_name, model_path)
     loaded_models[model_name] = tf.keras.models.load_model(model_path)
 
 app = Flask(__name__)
