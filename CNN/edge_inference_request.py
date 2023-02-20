@@ -68,6 +68,71 @@ mobilenetv1_test_image_preprocessed = image_preprocess(mobilenetv1_test_image_ar
 mobilenetv2_test_image_preprocessed = image_preprocess(mobilenetv2_test_image_array, 'mobilenet_v2')
 inceptionv3_test_image_preprocessed = image_preprocess(inceptionv3_test_image_array, 'inception_v3')
 
+img_size = 224
+
+def deserialize_image_record(record):
+    feature_map = {'image/encoded': tf.io.FixedLenFeature([], tf.string, ''),
+                   'image/class/label': tf.io.FixedLenFeature([1], tf.int64, -1),
+                   'image/class/text': tf.io.FixedLenFeature([], tf.string, '')}
+    obj = tf.io.parse_single_example(serialized=record, features=feature_map)
+    imgdata = obj['image/encoded']
+    label = tf.cast(obj['image/class/label'], tf.int32)
+    label_text = tf.cast(obj['image/class/text'], tf.string)
+    return imgdata, label, label_text
+
+
+def val_preprocessing(record):
+    imgdata, label, label_text = deserialize_image_record(record)
+    label -= 1
+    image = tf.io.decode_jpeg(imgdata, channels=3,
+                              fancy_upscaling=False,
+                              dct_method='INTEGER_FAST')
+
+    shape = tf.shape(image)
+    height = tf.cast(shape[0], tf.float32)
+    width = tf.cast(shape[1], tf.float32)
+    side = tf.cast(tf.convert_to_tensor(256, dtype=tf.int32), tf.float32)
+
+    scale = tf.cond(tf.greater(height, width),
+                    lambda: side / width,
+                    lambda: side / height)
+
+    new_height = tf.cast(tf.math.rint(height * scale), tf.int32)
+    new_width = tf.cast(tf.math.rint(width * scale), tf.int32)
+
+    image = tf.image.resize(image, [new_height, new_width], method='bicubic')
+    image = tf.image.resize_with_crop_or_pad(image, img_size, img_size)
+
+    image = tf.keras.applications.mobilenet.preprocess_input(image)
+
+    return image, label, label_text
+
+
+def get_dataset(batch_size, use_cache=False):
+    data_dir = './dataset/imagenet/imagenet_1000'
+    files = tf.io.gfile.glob(os.path.join(data_dir))
+    dataset = tf.data.TFRecordDataset(files)
+
+    dataset = dataset.map(map_func=val_preprocessing, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    dataset = dataset.batch(batch_size=batch_size)
+    dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+    dataset = dataset.repeat(count=1)
+
+    if use_cache:
+        shutil.rmtree('tfdatacache', ignore_errors=True)
+        os.mkdir('tfdatacache')
+        dataset = dataset.cache(f'./tfdatacache/imagenet_val')
+
+    return dataset
+
+
+batchsize = 1
+
+mobilenet_dataset = get_dataset(batchsize)
+
+img_size = 299
+inception_dataset = get_dataset(batchsize)
+
 
 def save_model(model, saved_model_dir):
     model = models_detail[model]
@@ -91,7 +156,9 @@ app = Flask(__name__)
 @app.route('/mobilenetv1')
 def mobilenetv1():
     inference_start_time = time.time()
-    result = loaded_models['mobilenet'].predict(mobilenetv1_test_image_preprocessed)
+    # result = loaded_models['mobilenet'].predict(mobilenetv1_test_image_preprocessed)
+    model = loaded_models['mobilenet']
+    result = model(mobilenet_dataset)
     inference_time = time.time() - inference_start_time
     print(result)
     return f'mobilenetv1 inference success\ntime:{inference_time}\n'
@@ -100,7 +167,9 @@ def mobilenetv1():
 @app.route('/mobilenetv2')
 def mobilenetv2():
     inference_start_time = time.time()
-    result = loaded_models['mobilenet_v2'].predict(mobilenetv2_test_image_preprocessed)
+    # result = loaded_models['mobilenet_v2'].predict(mobilenetv2_test_image_preprocessed)
+    model = loaded_models['mobilenet_v2']
+    result = model(mobilenet_dataset)
     inference_time = time.time() - inference_start_time
     print(result)
     return f'mobilenetv2 inference success\ntime:{inference_time}\n'
@@ -109,7 +178,9 @@ def mobilenetv2():
 @app.route('/inceptionv3')
 def inceptionv3():
     inference_start_time = time.time()
-    result = loaded_models['inception_v3'].predict(inceptionv3_test_image_preprocessed)
+    # result = loaded_models['inception_v3'].predict(inceptionv3_test_image_preprocessed)
+    model = loaded_models['inception_v3']
+    result = model(inception_dataset)
     inference_time = time.time() - inference_start_time
     print(result)
     return f'inceptionv3 inference success\ntime:{inference_time}\n'
