@@ -153,14 +153,15 @@ for model_name in model_names:
 
 app = Flask(__name__)
 
+mobilenetv1_model = loaded_models['mobilenet']
+
 
 @app.route('/mobilenetv1')
 def mobilenetv1():
     inference_start_time = time.time()
     for i, (validation_ds, batch_labels, _) in enumerate(mobilenet_dataset):
         # result = loaded_models['mobilenet'].predict(mobilenetv1_test_image_preprocessed)
-        model = loaded_models['mobilenet']
-        model(validation_ds)
+        mobilenetv1_model(validation_ds)
         break
     inference_time = time.time() - inference_start_time
 
@@ -188,7 +189,7 @@ def inceptionv3():
         model(validation_ds)
         break
     inference_time = time.time() - inference_start_time
-    
+
     return f'inceptionv3 inference success\ntime:{inference_time}\n'
 
 
