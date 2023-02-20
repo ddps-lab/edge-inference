@@ -128,10 +128,11 @@ def get_dataset(batch_size, use_cache=False):
 
 batchsize = 1
 
-mobilenet_dataset, _, _ = get_dataset(batchsize)[0]
+mobilenet_dataset = get_dataset(batchsize)
+print(mobilenet_dataset)
 
 img_size = 299
-inception_dataset, _, _ = get_dataset(batchsize)[0]
+inception_dataset = get_dataset(batchsize)
 
 
 def save_model(model, saved_model_dir):
@@ -156,33 +157,38 @@ app = Flask(__name__)
 @app.route('/mobilenetv1')
 def mobilenetv1():
     inference_start_time = time.time()
-    # result = loaded_models['mobilenet'].predict(mobilenetv1_test_image_preprocessed)
-    model = loaded_models['mobilenet']
-    result = model(mobilenet_dataset)
+    for i, (validation_ds, batch_labels, _) in enumerate(mobilenet_dataset):
+        # result = loaded_models['mobilenet'].predict(mobilenetv1_test_image_preprocessed)
+        model = loaded_models['mobilenet']
+        model(validation_ds)
+        break
     inference_time = time.time() - inference_start_time
-    print(result)
+
     return f'mobilenetv1 inference success\ntime:{inference_time}\n'
 
 
 @app.route('/mobilenetv2')
 def mobilenetv2():
     inference_start_time = time.time()
-    # result = loaded_models['mobilenet_v2'].predict(mobilenetv2_test_image_preprocessed)
-    model = loaded_models['mobilenet_v2']
-    result = model(mobilenet_dataset)
+    for i, (validation_ds, batch_labels, _) in enumerate(mobilenet_dataset):
+        # result = loaded_models['mobilenet_v2'].predict(mobilenetv2_test_image_preprocessed)
+        model = loaded_models['mobilenet_v2']
+        model(validation_ds)
+        break
     inference_time = time.time() - inference_start_time
-    print(result)
     return f'mobilenetv2 inference success\ntime:{inference_time}\n'
 
 
 @app.route('/inceptionv3')
 def inceptionv3():
     inference_start_time = time.time()
-    # result = loaded_models['inception_v3'].predict(inceptionv3_test_image_preprocessed)
-    model = loaded_models['inception_v3']
-    result = model(inception_dataset)
+    for i, (validation_ds, batch_labels, _) in enumerate(mobilenet_dataset):
+        # result = loaded_models['inception_v3'].predict(inceptionv3_test_image_preprocessed)
+        model = loaded_models['inception_v3']
+        model(validation_ds)
+        break
     inference_time = time.time() - inference_start_time
-    print(result)
+    
     return f'inceptionv3 inference success\ntime:{inference_time}\n'
 
 
