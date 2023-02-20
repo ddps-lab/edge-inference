@@ -128,10 +128,10 @@ def get_dataset(batch_size, use_cache=False):
 
 batchsize = 1
 
-mobilenet_dataset = get_dataset(batchsize)
+mobilenet_dataset, _, _ = get_dataset(batchsize)[0]
 
 img_size = 299
-inception_dataset = get_dataset(batchsize)
+inception_dataset, _, _ = get_dataset(batchsize)[0]
 
 
 def save_model(model, saved_model_dir):
