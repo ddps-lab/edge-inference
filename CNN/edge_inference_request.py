@@ -21,9 +21,9 @@ from tensorflow.keras.applications import (
 )
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model', default='all', type=str)
+parser.add_argument('--model', default='mobilenet,mobilenet_v2,inception_v3', type=str)
 args = parser.parse_args()
-models_to_load = args.model
+models_to_load = args.model.split(',')
 
 models = {
     'mobilenet': mobilenet,
@@ -84,21 +84,14 @@ def save_model(model, saved_model_dir):
 
 loaded_models = {}
 
-if models_to_load == 'all':
+for model_name in models_to_load:
     model_names = models_detail.keys()
-    for model_name in model_names:
+    if model_name in model_names:
         model_path = f'{model_name}_saved_model'
         if os.path.isdir(model_path) == False:
             print('model save')
             save_model(model_name, model_path)
         loaded_models[model_name] = tf.keras.models.load_model(model_path)
-elif models_to_load in models_detail.keys():
-    model_path = f'{models_to_load}_saved_model'
-    if os.path.isdir(model_path) == False:
-        print('model save')
-        save_model(models_to_load, model_path)
-    loaded_models[models_to_load] = tf.keras.models.load_model(model_path)
-
 
 app = Flask(__name__)
 
