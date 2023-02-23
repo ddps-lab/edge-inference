@@ -17,7 +17,7 @@ inference_request_url = f'http://{hostname}:{port}/'
 
 def model_reqest(model):
     url = inference_request_url + model
-    res = requests.post(url)
+    res = requests.get(url)
 
     return res.text
 
