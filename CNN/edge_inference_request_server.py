@@ -103,7 +103,7 @@ for model_name in models_to_load:
 app = Flask(__name__)
 
 
-@app.route('/mobilenetv1')
+@app.route('/mobilenet')
 def mobilenetv1():
     inference_start_time = time.time()
     result = loaded_models['mobilenet'].predict(mobilenetv1_test_image_preprocessed)
@@ -114,7 +114,7 @@ def mobilenetv1():
     return f'mobilenetv1 inference success\ntime:{inference_time}\n'
 
 
-@app.route('/mobilenetv2')
+@app.route('/mobilenet_v2')
 def mobilenetv2():
     inference_start_time = time.time()
     result = loaded_models['mobilenet_v2'].predict(mobilenetv2_test_image_preprocessed)
@@ -125,7 +125,7 @@ def mobilenetv2():
     return f'mobilenetv2 inference success\ntime:{inference_time}\n'
 
 
-@app.route('/inceptionv3')
+@app.route('/inception_v3')
 def inceptionv3():
     inference_start_time = time.time()
     result = loaded_models['inception_v3'].predict(inceptionv3_test_image_preprocessed)
