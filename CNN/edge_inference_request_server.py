@@ -22,7 +22,7 @@ from tensorflow.keras.applications import (
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', default='mobilenet,mobilenet_v2,inception_v3', type=str)
-parser.add_argument('--hostname', default='localhost', type=str)
+parser.add_argument('--hostname', default='0.0.0.0', type=str)
 parser.add_argument('--port', default=5001, type=int)
 args = parser.parse_args()
 models_to_load = args.model.split(',')
