@@ -22,8 +22,12 @@ from tensorflow.keras.applications import (
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', default='mobilenet,mobilenet_v2,inception_v3', type=str)
+parser.add_argument('--hostname', default='localhost', type=str)
+parser.add_argument('--port', default=5001, type=int)
 args = parser.parse_args()
 models_to_load = args.model.split(',')
+hostname = args.hostname
+port = args.port
 
 models = {
     'mobilenet': mobilenet,
@@ -92,6 +96,9 @@ for model_name in models_to_load:
             print('model save')
             save_model(model_name, model_path)
         loaded_models[model_name] = tf.keras.models.load_model(model_path)
+    else:
+        print(f'model names must be in {model_names}')
+        exit(1)
 
 app = Flask(__name__)
 
@@ -129,4 +136,4 @@ def inceptionv3():
     return f'inceptionv3 inference success\ntime:{inference_time}\n'
 
 
-app.run(host='localhost', port=5001)
+app.run(host=hostname, port=port)
