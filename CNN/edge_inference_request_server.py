@@ -116,7 +116,7 @@ def mobilenetv1():
 
     print(result)
     
-    return f'mobilenetv1 inference success\ntime:{inference_time}\n'
+    return f'mobilenetv1 inference success\ninference time:{inference_time}\n'
 
 
 @app.route('/mobilenet_v2')
@@ -127,7 +127,7 @@ def mobilenetv2():
 
     print(result)
 
-    return f'mobilenetv2 inference success\ntime:{inference_time}\n'
+    return f'mobilenetv2 inference success\ninference time:{inference_time}\n'
 
 
 @app.route('/inception_v3')
@@ -138,7 +138,7 @@ def inceptionv3():
 
     print(result)
 
-    return f'inceptionv3 inference success\ntime:{inference_time}\n'
+    return f'inceptionv3 inference success\ninference time:{inference_time}\n'
 
 
 app.run(host=hostname, port=port)
