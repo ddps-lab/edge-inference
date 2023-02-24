@@ -114,14 +114,14 @@ def mobilenetv1():
     global order
     order += 1
     my_order = order
-    print(f'[{my_order}] inference start')
+    print(f'[{my_order}] inference start: {time.time()}')
     inference_start_time = time.time()
     result = loaded_models['mobilenet'].predict(mobilenetv1_test_image_preprocessed)
     inference_time = time.time() - inference_start_time
-    print(f'[{my_order}] inference end')
+    print(f'[{my_order}] inference end: {time.time()}')
     # print(result)
     
-    return f'mobilenetv1 inference success\ninference time:{inference_time}\n'
+    return f'mobilenetv1 inference success\ninference time:{inference_time}\nend time:{time.time()}'
 
 
 @app.route('/mobilenet_v2')
