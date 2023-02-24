@@ -107,14 +107,18 @@ print('saving and loading models completed!\n')
 
 app = Flask(__name__)
 
+order = 0
 
 @app.route('/mobilenet')
 def mobilenetv1():
+    global order
+    order += 1
+    print(f'[{order}] inference start')
     inference_start_time = time.time()
     result = loaded_models['mobilenet'].predict(mobilenetv1_test_image_preprocessed)
     inference_time = time.time() - inference_start_time
-
-    print(result)
+    print(f'[{order}] inference end')
+    # print(result)
     
     return f'mobilenetv1 inference success\ninference time:{inference_time}\n'
 
