@@ -6,22 +6,28 @@ import time
 from threading import Thread
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model', default='mobilenet,mobilenet_v2,inception_v3', type=str)
-parser.add_argument('--hostname', required=True, type=str)
+#parser.add_argument('--model', default='mobilenet,mobilenet_v2,inception_v3', type=str)
+#parser.add_argument('--hostname', required=True, type=str)
 parser.add_argument('--port', required=True, type=int)
 
 args = parser.parse_args()
 
-models_to_inference = args.model.split(',')
-hostname = args.hostname
+#models_to_inference = args.model.split(',')
+#hostname = args.hostname
 port = args.port
 
-inference_request_url = f'http://{hostname}:{port}/'
+#inference_request_url = f'http://{hostname}:{port}/'
 
 
-def model_request(model, order):
+edge_url_info = {'nvidia-xavier2': f'http://192.168.0.30:{port}/',
+                 'nvidia-nano1': f'http://192.168.0.29:{port}/',
+                 'nvidia-tx2': f'http://192.168.0.8:{port}/'
+                 }
+
+def model_request(edge, model, order):
     req_processing_start_time = time.time()
-    url = inference_request_url + model
+    #url = inference_request_url + model
+    url = edge_url_info.get(edge) + model
     res = requests.get(url)
     processing_time = time.time() - req_processing_start_time
     print(f'[{order}] total request time: {processing_time}\n{res.text}')
@@ -38,7 +44,7 @@ threads = []
 order = 0
 for req in requests_list:
     order += 1
-    th = Thread(target=model_request, args=(req, order))
+    th = Thread(target=model_request, args=('nvidia-tx2', req, order))
     th.start()
     threads.append(th)
 
