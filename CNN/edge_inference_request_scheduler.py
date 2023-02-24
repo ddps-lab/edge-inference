@@ -23,8 +23,8 @@ def model_request(model, order):
     req_processing_start_time = time.time()
     url = inference_request_url + model
     res = requests.get(url)
-    print(f'[{order}] total request time: ', time.time() - req_processing_start_time)
-    print(res.text)
+    processing_time = time.time() - req_processing_start_time
+    print(f'[{order}] total request time: {processing_time}\n{res.text}')
 
     return
 
