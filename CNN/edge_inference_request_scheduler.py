@@ -36,7 +36,7 @@ requests_list = [models[0][0] for _ in range(request_num)]
 
 threads = []
 for req in requests_list:
-    th = Thread(target=model_request, args=req)
+    th = Thread(target=model_request, args=(req))
     th.start()
     threads.append(th)
 
