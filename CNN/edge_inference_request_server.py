@@ -62,6 +62,7 @@ def image_preprocess(image_array, model_name):
     return models[model_name].preprocess_input(
         image_array[tf.newaxis, ...])
 
+print('\npreprossing images...')
 
 mobilenetv1_image_path = './dataset/imagenet/imagenet_1000_raw/n02782093_1.JPEG'
 mobilenetv2_image_path = './dataset/imagenet/imagenet_1000_raw/n04404412_1.JPEG'
@@ -79,12 +80,14 @@ mobilenetv1_test_image_preprocessed = image_preprocess(mobilenetv1_test_image_ar
 mobilenetv2_test_image_preprocessed = image_preprocess(mobilenetv2_test_image_array, 'mobilenet_v2')
 inceptionv3_test_image_preprocessed = image_preprocess(inceptionv3_test_image_array, 'inception_v3')
 
+print('image preprocessing completed!\n')
 
 def save_model(model, saved_model_dir):
     model = models_detail[model]
     shutil.rmtree(saved_model_dir, ignore_errors=True)
     model.save(saved_model_dir, include_optimizer=False, save_format='tf')
 
+print('\nsaving and loading models...')
 
 loaded_models = {}
 
@@ -99,6 +102,8 @@ for model_name in models_to_load:
     else:
         print(f'model names must be in {model_names}')
         exit(1)
+
+print('saving and loading models completed!\n')
 
 app = Flask(__name__)
 

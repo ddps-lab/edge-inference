@@ -31,7 +31,7 @@ get_weighted_smooth = roundrobin.smooth(models)
 events_avg = 10
 total_event_num = 10
 
-poisson_distribution = random.poisson(events_avg, total_event_num)
+poisson_distribution = list(random.poisson(events_avg, total_event_num))
 
 for event_num in poisson_distribution:
     print('request count: ', event_num)
