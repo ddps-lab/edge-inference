@@ -19,11 +19,11 @@ port = args.port
 inference_request_url = f'http://{hostname}:{port}/'
 
 
-def model_request(model):
+def model_request(model, order):
     req_processing_start_time = time.time()
     url = inference_request_url + model
     res = requests.get(url)
-    print('total request time: ', time.time() - req_processing_start_time)
+    print(f'[{order}] total request time: ', time.time() - req_processing_start_time)
     print(res.text)
 
     return
@@ -35,8 +35,10 @@ get_weighted_smooth = roundrobin.smooth(models)
 requests_list = [models[0][0] for _ in range(request_num)]
 
 threads = []
+order = 0
 for req in requests_list:
-    th = Thread(target=model_request, args=(req,))
+    order += 1
+    th = Thread(target=model_request, args=(req, order))
     th.start()
     threads.append(th)
 
