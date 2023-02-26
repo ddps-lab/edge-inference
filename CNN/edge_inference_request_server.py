@@ -107,30 +107,34 @@ print('saving and loading models completed!\n')
 
 app = Flask(__name__)
 
-order = 0
+# order = 0
+
 
 @app.route('/mobilenet')
 def mobilenetv1():
-    global order
-    order += 1
-    my_order = order
-    print(f'[{my_order}] inference start: {time.time()}')
+    # global order
+    # order += 1
+    # my_order = order
     inference_start_time = time.time()
+    # print(f'[{my_order}] inference start: {inference_start_time}')
     result = loaded_models['mobilenet'].predict(mobilenetv1_test_image_preprocessed)
-    inference_time = time.time() - inference_start_time
-    print(f'[{my_order}] inference end: {time.time()}')
-    # print(result)
+    inference_end_time = time.time()
+    # print(f'[{my_order}] inference end: {inference_end_time}')
+
+    inference_time = inference_end_time - inference_start_time
     
-    return f'mobilenetv1 inference success\ninference time:{inference_time}\nend time:{time.time()}'
+    return f'mobilenetv1 inference success\ninference time:{inference_time}\n'
 
 
 @app.route('/mobilenet_v2')
 def mobilenetv2():
     inference_start_time = time.time()
     result = loaded_models['mobilenet_v2'].predict(mobilenetv2_test_image_preprocessed)
-    inference_time = time.time() - inference_start_time
+    inference_end_time = time.time()
 
-    print(result)
+    inference_time = inference_end_time - inference_start_time
+
+    # print(result)
 
     return f'mobilenetv2 inference success\ninference time:{inference_time}\n'
 
@@ -139,9 +143,11 @@ def mobilenetv2():
 def inceptionv3():
     inference_start_time = time.time()
     result = loaded_models['inception_v3'].predict(inceptionv3_test_image_preprocessed)
-    inference_time = time.time() - inference_start_time
+    inference_end_time = time.time()
 
-    print(result)
+    inference_time = inference_end_time - inference_start_time
+
+    # print(result)
 
     return f'inceptionv3 inference success\ninference time:{inference_time}\n'
 

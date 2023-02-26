@@ -6,28 +6,28 @@ import time
 from threading import Thread
 
 parser = argparse.ArgumentParser()
-#parser.add_argument('--model', default='mobilenet,mobilenet_v2,inception_v3', type=str)
-#parser.add_argument('--hostname', required=True, type=str)
 parser.add_argument('--port', required=True, type=int)
 
 args = parser.parse_args()
 
-#models_to_inference = args.model.split(',')
-#hostname = args.hostname
 port = args.port
 
-#inference_request_url = f'http://{hostname}:{port}/'
+edges_info = {'nvidia-xavier2': {'url': f'http://192.168.0.30:{port}/',
+                                 'model': ['mobilenet', 'mobilenet_v2', 'inception_v3']
+                                 },
+              'nvidia-tx2': {'url': f'http://192.168.0.8:{port}/',
+                             'model': ['mobilenet', 'mobilenet_v2', 'inception_v3']
+                             },
+              'nvidia-nano1': {'url': f'http://192.168.0.29:{port}/',
+                               'model': ['mobilenet']
+                               }
+              }
 
-
-edge_url_info = {'nvidia-xavier2': f'http://192.168.0.30:{port}/',
-                 'nvidia-nano1': f'http://192.168.0.29:{port}/',
-                 'nvidia-tx2': f'http://192.168.0.8:{port}/'
-                 }
 
 def model_request(edge, model, order):
     req_processing_start_time = time.time()
-    #url = inference_request_url + model
-    url = edge_url_info.get(edge) + model
+    edge_info = edges_info.get(edge)
+    url = edge_info.get('url') + model
     res = requests.get(url)
     processing_time = time.time() - req_processing_start_time
     print(f'[{order}] total request time: {processing_time}\n{res.text}')
@@ -35,22 +35,34 @@ def model_request(edge, model, order):
     return
 
 
-request_num = 10
-models = [('mobilenet', 1), ('mobilenet_v2', 3), ('inception_v3', 6)]
-get_weighted_smooth = roundrobin.smooth(models)
-requests_list = [models[0][0] for _ in range(request_num)]
+model_edge_info = {}
+
+for edge_info_key in edges_info.keys():
+    edge_info = edges_info.get(edge_info_key)
+    for model in edge_info.get('model'):
+        if model not in model_edge_info.keys():
+            model_edge_info[model] = []
+
+        model_edge_info[model].append((edge_info_key, 1))
+
+for i in model_edge_info.keys():
+    model_info = model_edge_info.get(i)
+    model_edge_info[i] = roundrobin.smooth(model_info)
+
+
+requests_list = ['mobilenet', 'mobilenet_v2', 'inception_v3', 'mobilenet_v2', 'inception_v3', 'mobilenet']
 
 threads = []
 order = 0
 for req in requests_list:
+    edge_to_inference = model_edge_info.get(req)()
     order += 1
-    th = Thread(target=model_request, args=('nvidia-tx2', req, order))
+    th = Thread(target=model_request, args=(edge_to_inference, req, order))
     th.start()
     threads.append(th)
 
 for th in threads:
     th.join()
-
 
 # events_avg = 10
 # total_event_num = 10
@@ -68,8 +80,3 @@ for th in threads:
 #         print('total request time: ', time.time() - request_start_time)
 #
 #         print(res)
-
-
-
-
-
