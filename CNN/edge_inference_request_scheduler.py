@@ -50,14 +50,16 @@ for i in model_edge_info.keys():
     model_edge_info[i] = roundrobin.smooth(model_info)
 
 
-requests_list = ['mobilenet', 'mobilenet_v2', 'inception_v3', 'mobilenet_v2', 'inception_v3', 'mobilenet']
+requests_list = ['mobilenet', 'mobilenet_v2', 'mobilenet', 'mobilenet'
+                 'inception_v3', 'mobilenet_v2', 'inception_v3', 'mobilenet'
+                 'inception_v3', 'mobilenet_v2', 'inception_v3']
 
 threads = []
 order = 0
 for req in requests_list:
     edge_to_inference = model_edge_info.get(req)()
     order += 1
-    th = Thread(target=model_request, args=(edge_to_inference, req, order))
+    th = Thread(target=model_request, args=(edge_to_inference, req, f'{order}:{edge_to_inference}/{req}'))
     th.start()
     threads.append(th)
 
