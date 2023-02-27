@@ -105,9 +105,10 @@ requests_list = ['mobilenet', 'mobilenet_v2', 'mobilenet', 'mobilenet',
 threads = []
 order = 0
 for req in requests_list:
-    edge_to_inference = model_edge_info.get(req)
-    if edges_to_inference is not None:
-        edges_to_inference = edges_to_inference()
+    if req in model_edge_info.keys():
+        edge_to_inference = model_edge_info.get(req)()
+    else:
+        edges_to_inference = None
 
     order += 1
     th = Thread(target=model_request, args=(edge_to_inference, req, f'{order}:{edge_to_inference}/{req}'))
