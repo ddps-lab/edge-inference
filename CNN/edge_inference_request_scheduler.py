@@ -76,13 +76,21 @@ def model_request(edge, model, order):
 # 문제점 각 모델이 하나씩 들어오면 장비들 중 하나에만 요청이 들어감 -> 고민
 model_edge_info = {}
 
-for edge_info_key in edges_info.keys():
-    edge_info = edges_info.get(edge_info_key)
+for edge in edges_to_inference:
+    edge_info = edges_info.get(edge)
     for model in edge_info.get('model'):
         if model not in model_edge_info.keys():
             model_edge_info[model] = []
 
-        model_edge_info[model].append((edge_info_key, 1))
+        model_edge_info[model].append((edge, 1))
+
+# for edge_info_key in edges_info.keys():
+#     edge_info = edges_info.get(edge_info_key)
+#     for model in edge_info.get('model'):
+#         if model not in model_edge_info.keys():
+#             model_edge_info[model] = []
+#
+#         model_edge_info[model].append((edge_info_key, 1))
 
 for model in model_edge_info.keys():
     dataset = model_edge_info.get(model)
