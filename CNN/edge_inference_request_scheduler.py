@@ -59,15 +59,12 @@ print(f'Models to inference: {models_to_inference}')
 
 # 추론을 요청하는 함수, 인자로는 추론을 요청할 엣지 장비, 모델, 요청임. 엣지장비와 모델은 위의 edges_info에 등록되어 있어야함
 def model_request(edge, model, order):
-    global edges_to_inference
-    global models_to_inference
-
     if edge not in edges_to_inference:
-        print(f'edge must be in {edges_to_inference}')
+        print(f'[{order}] edge must be in {edges_to_inference}/ input value: {edge}')
         return
 
     if model not in models_to_inference:
-        print(f'model must be in {models_to_inference}')
+        print(f'[{order}] model must be in {models_to_inference}/ input value: {model}')
         return
 
     req_processing_start_time = time.time()
@@ -91,6 +88,9 @@ for edge in edges_to_inference:
 
         model_edge_info[model].append((edge, 1))
 
+print(f'model-edge dataset: {model_edge_info}')
+
+
 # for edge_info_key in edges_info.keys():
 #     edge_info = edges_info.get(edge_info_key)
 #     for model in edge_info.get('model'):
@@ -102,8 +102,6 @@ for edge in edges_to_inference:
 for model in model_edge_info.keys():
     dataset = model_edge_info.get(model)
     model_edge_info[model] = roundrobin.smooth(dataset)
-
-print(f'model-edge info: {model_edge_info}')
 
 
 # 들어오는 요청들 임시 코드임!!!
@@ -117,7 +115,7 @@ for req in requests_list:
     if req in model_edge_info.keys():
         edge_to_inference = model_edge_info.get(req)()
     else:
-        edges_to_inference = ''
+        edge_to_inference = ''
 
     order += 1
     th = Thread(target=model_request, args=(edge_to_inference, req, f'{order}:{edge_to_inference}/{req}'))
