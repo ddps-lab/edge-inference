@@ -6,12 +6,16 @@ import time
 from threading import Thread
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--port', required=True, type=int)
+parser.add_argument('--edge', default=None, type=str)
+parser.add_argument('--port', default=5001, type=int)
 
 args = parser.parse_args()
 
+edges_to_inference = args.edge
 port = args.port
 
+
+# 이 부분만 설정하면 모델추가나 장비추가가 수월함. 각 장비의 ip와 로드된 모델들을 설정해주어야함.
 edges_info = {'nvidia-xavier2': {'url': f'http://192.168.0.30:{port}/',
                                  'model': ['mobilenet', 'mobilenet_v2', 'inception_v3']
                                  },
@@ -24,7 +28,39 @@ edges_info = {'nvidia-xavier2': {'url': f'http://192.168.0.30:{port}/',
               }
 
 
+# --edge 옵션이 없을 시 등록되어 있는 모든 장비들에 추론 요청, 요청장비들은 edges_info에 등록되어 있어야함. 입력 형식은 'a, b, ...'
+edges_register = list(edges_info.keys())
+
+if edges_to_inference is None:
+    edges_to_inference = edges_register
+else:
+    edges_to_inference = edges_to_inference.split(',')
+
+for edge in edges_to_inference:
+    if edge not in edges_register:
+        print(f'--edge arg must be in {edges_register}')
+        exit(1)
+
+
+# edges_info에 등록된 모델들
+models_register = []
+
+for edge_info in edges_info.values():
+    models_register.extend(edge_info.get('model'))
+
+models_register = set(models_register)
+
+
+# 추론을 요청하는 함수, 인자로는 추론을 요청할 엣지 장비, 모델, 요청임. 엣지장비와 모델은 위의 edges_info에 등록되어 있어야함
 def model_request(edge, model, order):
+    if edge not in edges_register:
+        print(f'edge must be in {edges_register}')
+        return
+
+    if model not in models_register:
+        print(f'model must be in {models_register}')
+        return
+
     req_processing_start_time = time.time()
     edge_info = edges_info.get(edge)
     url = edge_info.get('url') + model
@@ -35,6 +71,8 @@ def model_request(edge, model, order):
     return
 
 
+# 현재 스케줄링 방식: 딕셔너리에 모델별로 엣지장비이름 등록, 들어오는 요청에 따라 각 장비들에 라운드로빈으로 스케줄링
+# 문제점 각 모델이 하나씩 들어오면 장비들 중 하나에만 요청이 들어감 -> 고민
 model_edge_info = {}
 
 for edge_info_key in edges_info.keys():
@@ -45,11 +83,12 @@ for edge_info_key in edges_info.keys():
 
         model_edge_info[model].append((edge_info_key, 1))
 
-for i in model_edge_info.keys():
-    model_info = model_edge_info.get(i)
-    model_edge_info[i] = roundrobin.smooth(model_info)
+for model in model_edge_info.keys():
+    dataset = model_edge_info.get(model)
+    model_edge_info[model] = roundrobin.smooth(dataset)
 
 
+# 들어오는 요청들 임시 코드임!!!
 requests_list = ['mobilenet', 'mobilenet_v2', 'mobilenet', 'mobilenet',
                  'inception_v3', 'mobilenet_v2', 'inception_v3', 'mobilenet',
                  'inception_v3', 'mobilenet_v2', 'inception_v3']
@@ -65,20 +104,3 @@ for req in requests_list:
 
 for th in threads:
     th.join()
-
-# events_avg = 10
-# total_event_num = 10
-#
-# poisson_distribution = random.poisson(events_avg, total_event_num)
-#
-# for event_num in poisson_distribution:
-#     print('request count: ', event_num)
-#
-#     for idx in range(event_num):
-#         current_inference_model = get_weighted_smooth()
-#
-#         request_start_time = time.time()
-#         res = model_request(current_inference_model)
-#         print('total request time: ', time.time() - request_start_time)
-#
-#         print(res)
