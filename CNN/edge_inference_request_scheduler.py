@@ -42,23 +42,25 @@ for edge in edges_to_inference:
         exit(1)
 
 
-# edges_info에 등록된 모델들
-models_register = []
+# 추론 요청 할 장비들에서 요청 가능한 모델들
+models_to_inference = []
 
-for edge_info in edges_info.values():
-    models_register.extend(edge_info.get('model'))
+for edge_name in edges_to_inference:
+    edge_info = edges_info.get(edge_name)
+    models = edge_info.get('model')
+    models_to_inference.extend(models)
 
-models_register = set(models_register)
+models_to_inference = set(models_to_inference)
 
 
 # 추론을 요청하는 함수, 인자로는 추론을 요청할 엣지 장비, 모델, 요청임. 엣지장비와 모델은 위의 edges_info에 등록되어 있어야함
 def model_request(edge, model, order):
-    if edge not in edges_register:
-        print(f'edge must be in {edges_register}')
+    if edge not in edges_to_inference:
+        print(f'edge must be in {edges_to_inference}')
         return
 
-    if model not in models_register:
-        print(f'model must be in {models_register}')
+    if model not in models_to_inference:
+        print(f'model must be in {models_to_inference}')
         return
 
     req_processing_start_time = time.time()
@@ -67,7 +69,6 @@ def model_request(edge, model, order):
     res = requests.get(url)
     processing_time = time.time() - req_processing_start_time
     print(f'[{order}] total request time: {processing_time}\n{res.text}')
-
     return
 
 
