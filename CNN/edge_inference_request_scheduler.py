@@ -59,6 +59,9 @@ print(f'Models to inference: {models_to_inference}')
 
 # 추론을 요청하는 함수, 인자로는 추론을 요청할 엣지 장비, 모델, 요청임. 엣지장비와 모델은 위의 edges_info에 등록되어 있어야함
 def model_request(edge, model, order):
+    global edges_to_inference
+    global models_to_inference
+
     if edge not in edges_to_inference:
         print(f'edge must be in {edges_to_inference}')
         return
