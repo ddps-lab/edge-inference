@@ -41,6 +41,8 @@ for edge in edges_to_inference:
         print(f'--edge arg must be in {edges_register}')
         exit(1)
 
+print(f'Edges to inference: {edges_to_inference}')
+
 
 # 추론 요청 할 장비들에서 요청 가능한 모델들
 models_to_inference = []
@@ -51,6 +53,8 @@ for edge_name in edges_to_inference:
     models_to_inference.extend(models)
 
 models_to_inference = set(models_to_inference)
+
+print(f'Models to inference: {models_to_inference}')
 
 
 # 추론을 요청하는 함수, 인자로는 추론을 요청할 엣지 장비, 모델, 요청임. 엣지장비와 모델은 위의 edges_info에 등록되어 있어야함
@@ -96,6 +100,8 @@ for model in model_edge_info.keys():
     dataset = model_edge_info.get(model)
     model_edge_info[model] = roundrobin.smooth(dataset)
 
+print(f'model-edge info: {model_edge_info}')
+
 
 # 들어오는 요청들 임시 코드임!!!
 requests_list = ['mobilenet', 'mobilenet_v2', 'mobilenet', 'mobilenet',
@@ -108,7 +114,7 @@ for req in requests_list:
     if req in model_edge_info.keys():
         edge_to_inference = model_edge_info.get(req)()
     else:
-        edges_to_inference = None
+        edges_to_inference = ''
 
     order += 1
     th = Thread(target=model_request, args=(edge_to_inference, req, f'{order}:{edge_to_inference}/{req}'))
