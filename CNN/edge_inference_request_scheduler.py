@@ -9,13 +9,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--edge', default=None, type=str)
 parser.add_argument('--port', default=5001, type=int)
 
-args = parser.parse_args()
-
-edges_to_inference = args.edge
-port = args.port
-
-
-# 임시 코드
+######### 임시 코드 ###################
 parser.add_argument('--reqs', default='mobilenet,10', type=str)
 parser.add_argument('--random', action='store_true')
 
@@ -23,6 +17,15 @@ temp_args = parser.parse_args()
 
 inference_requests = temp_args.reqs.split(',')
 inference_random_flag = temp_args.random
+####################################
+
+args = parser.parse_args()
+
+edges_to_inference = args.edge
+port = args.port
+
+
+
 
 
 # 이 부분만 설정하면 모델추가나 장비추가가 수월함. 각 장비의 ip와 로드된 모델들을 설정해주어야함.
