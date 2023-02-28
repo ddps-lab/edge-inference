@@ -16,8 +16,8 @@ port = args.port
 
 
 # 임시 코드
-parser.add_argument('--request', default='mobilenet,10', type=str)
-inference_requests = args.request.split(',')
+parser.add_argument('--reqs', default='mobilenet,10', type=str)
+inference_requests = args.reqs.split(',')
 parser.add_argument('--random', action='store_true')
 inference_random_flag = args.random
 
