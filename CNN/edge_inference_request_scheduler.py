@@ -15,6 +15,13 @@ edges_to_inference = args.edge
 port = args.port
 
 
+# 임시 코드
+parser.add_argument('--req', default='mobilenet,10', type=str)
+inference_requests = args.req.spilt(',')
+parser.add_argument('--random', action='store_true')
+inference_random_flag = args.random
+
+
 # 이 부분만 설정하면 모델추가나 장비추가가 수월함. 각 장비의 ip와 로드된 모델들을 설정해주어야함.
 edges_info = {'nvidia-xavier2': {'url': f'http://192.168.0.30:{port}/',
                                  'model': ['mobilenet', 'mobilenet_v2', 'inception_v3']
@@ -105,9 +112,17 @@ for model in model_edge_info.keys():
 
 
 # 들어오는 요청들 임시 코드임!!!
-requests_list = ['mobilenet', 'mobilenet_v2', 'mobilenet', 'mobilenet',
-                 'inception_v3', 'mobilenet_v2', 'inception_v3', 'mobilenet',
-                 'inception_v3', 'mobilenet_v2', 'inception_v3']
+requests_list = []
+for idx in range(0, len(inference_requests), 2):
+    model = inference_requests[idx]
+    inference_num = inference_requests[idx]
+
+    for _ in range(inference_num):
+        requests_list.append(model)
+
+if inference_random_flag:
+    random.shuffle(requests_list)
+
 
 threads = []
 order = 0
