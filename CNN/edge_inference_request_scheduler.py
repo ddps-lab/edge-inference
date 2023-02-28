@@ -17,9 +17,12 @@ port = args.port
 
 # 임시 코드
 parser.add_argument('--reqs', default='mobilenet,10', type=str)
-inference_requests = args.reqs.split(',')
 parser.add_argument('--random', action='store_true')
-inference_random_flag = args.random
+
+temp_args = parser.parse_args()
+
+inference_requests = temp_args.reqs.split(',')
+inference_random_flag = temp_args.random
 
 
 # 이 부분만 설정하면 모델추가나 장비추가가 수월함. 각 장비의 ip와 로드된 모델들을 설정해주어야함.
