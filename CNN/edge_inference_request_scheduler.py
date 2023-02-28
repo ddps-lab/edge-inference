@@ -118,7 +118,7 @@ for model in model_edge_info.keys():
 requests_list = []
 for idx in range(0, len(inference_requests), 2):
     model = inference_requests[idx]
-    inference_num = int(inference_requests[idx])
+    inference_num = int(inference_requests[idx+1])
 
     for _ in range(inference_num):
         requests_list.append(model)
