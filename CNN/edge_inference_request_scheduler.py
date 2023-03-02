@@ -142,6 +142,7 @@ for req in requests_list:
     th = Thread(target=model_request, args=(edge_to_inference, req, f'{order}:{edge_to_inference}/{req}'))
     th.start()
     threads.append(th)
+    time.sleep(0.1)
 
 for th in threads:
     th.join()
