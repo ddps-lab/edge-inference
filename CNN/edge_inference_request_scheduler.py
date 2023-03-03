@@ -7,7 +7,6 @@ from threading import Thread
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--edge', default=None, type=str)
-parser.add_argument('--port', default=5001, type=int)
 
 ######### 임시 코드 ###################
 parser.add_argument('--reqs', default='mobilenet,10', type=str)
@@ -29,13 +28,13 @@ port = args.port
 
 
 # 이 부분만 설정하면 모델추가나 장비추가가 수월함. 각 장비의 ip와 로드된 모델들을 설정해주어야함.
-edges_info = {'nvidia-xavier2': {'url': f'http://192.168.0.30:{port}/',
+edges_info = {'nvidia-xavier2': {'url': f'http://192.168.0.30:',
                                  'model': ['mobilenet', 'mobilenet_v2', 'inception_v3']
                                  },
-              'nvidia-tx2': {'url': f'http://192.168.0.8:{port}/',
+              'nvidia-tx2': {'url': f'http://192.168.0.8:',
                              'model': ['mobilenet', 'mobilenet_v2', 'inception_v3']
                              },
-              'nvidia-nano1': {'url': f'http://192.168.0.29:{port}/',
+              'nvidia-nano1': {'url': f'http://192.168.0.29:',
                                'model': ['mobilenet']
                                }
               }
@@ -71,7 +70,7 @@ print(f'Models to inference: {models_to_inference}')
 
 
 # 추론을 요청하는 함수, 인자로는 추론을 요청할 엣지 장비, 모델, 요청임. 엣지장비와 모델은 위의 edges_info에 등록되어 있어야함
-def model_request(edge, model, order):
+def model_request(edge, model, port, order):
     if edge not in edges_to_inference:
         print(f'[{order}] edge must be in {edges_to_inference}/ input value: {edge}')
         return
@@ -82,7 +81,7 @@ def model_request(edge, model, order):
 
     req_processing_start_time = time.time()
     edge_info = edges_info.get(edge)
-    url = edge_info.get('url') + model
+    url = edge_info.get('url') + f'{port}/' + model
     res = requests.get(url)
     processing_time = time.time() - req_processing_start_time
     print(f'[{order}] total request time: {processing_time}\n{res.text}')
@@ -139,8 +138,11 @@ for req in requests_list:
         edge_to_inference = ''
 
     order += 1
-    th = Thread(target=model_request, args=(edge_to_inference, req, f'{order}:{edge_to_inference}/{req}'))
+    th = Thread(target=model_request, args=(edge_to_inference, req, 5001, f'{order}:{edge_to_inference}/{req}'))
+    th2 = Thread(target=model_request, args=(edge_to_inference, req, 5001, f'{order}:{edge_to_inference}/{req}'))
     th.start()
+    th2.start()
+    threads.append(th2)
     threads.append(th)
     # time.sleep(0.1)
 
