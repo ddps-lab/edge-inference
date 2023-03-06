@@ -141,7 +141,7 @@ def model_request(edge, model, order):
     res = requests.get(url)
     processing_time = time.time() - req_processing_start_time
 
-    print(f'[{order}] total request time: {processing_time}\n{res.text}')
+    print(f'[{order}:{edge}({port})/{model}] total request time: {processing_time}\n{res.text}')
     return
 
 
@@ -170,7 +170,7 @@ for req in requests_list:
         continue
 
     order += 1
-    th = Thread(target=model_request, args=(edge_to_inference, req, f'{order}:{edge_to_inference}/{req}'))
+    th = Thread(target=model_request, args=(edge_to_inference, req, order))
     th.start()
     threads.append(th)
 
