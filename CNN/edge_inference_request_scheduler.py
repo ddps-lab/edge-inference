@@ -24,15 +24,15 @@ edges_to_inference = args.edge
 
 
 # 이 부분만 설정하면 모델추가나 장비추가가 수월함. 각 장비의 ip와 로드된 모델들을 설정해주어야함.
-edges_info = {'nvidia-xavier2': {'ip_addr': '192.168.0.30',
+edges_info = {'nvidia-xavier2': {'ip_addr': '192.168.0.32',
                                  'ports': [5001, 5002],
                                  'models': ['mobilenet', 'mobilenet_v2', 'inception_v3']
                                  },
-              'nvidia-tx2': {'ip_addr': '192.168.0.8',
+              'nvidia-tx2': {'ip_addr': '192.168.0.22',
                              'ports': [5001],
                              'models': ['mobilenet', 'mobilenet_v2', 'inception_v3']
                              },
-              'nvidia-nano1': {'ip_addr': '192.168.0.29',
+              'nvidia-nano1': {'ip_addr': '192.168.0.41',
                                'ports': [5001],
                                'models': ['mobilenet']
                                }
