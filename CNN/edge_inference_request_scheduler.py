@@ -184,7 +184,7 @@ for th in threads:
     th.join()
 
 
-# 추론요청 결과 출력 (최소, 최대, 총, 평균)
+# 추론요청 결과 출력 (최소, 중간, 최대, 평균)
 inference_time_results.sort()
 len_inference_time_results = len(inference_time_results)
 
@@ -194,7 +194,6 @@ min_inference_time = inference_time_results[0]
 mid_inference_time = inference_time_results[int(len_inference_time_results / 2)]
 max_inference_time = inference_time_results[-1]
 
-print(f'\n총 추론 시간: {total_inference_time}')
 print(f'평균 추론 시간: {avg_inference_time}')
 print(f'최소 추론 시간: {min_inference_time}')
 print(f'중간 추론 시간: {mid_inference_time}')
