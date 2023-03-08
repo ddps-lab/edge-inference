@@ -98,7 +98,7 @@ for edge in edges_to_inference:
     for port in edge_info.get('ports'):
         edge_port_info[edge].append((port, 1))
 
-print(f'ip-edge dataset: {edge_port_info}')
+print(f'edge-port dataset: {edge_port_info}')
 
 for edge in edge_port_info.keys():
     dataset = edge_port_info.get(edge)
@@ -168,6 +168,7 @@ threads = []
 order = 0
 
 inference_time_results = [0 for _ in range(len(requests_list))]
+request_sleep_time = 1 / len(requests_list)  # 요청들을 1초에 나눠서 보내기 위한 슬립시간
 
 for req in requests_list:
     edge_to_inference = get_edge_by_model_rr(req)
@@ -179,6 +180,7 @@ for req in requests_list:
     th = Thread(target=model_request, args=(edge_to_inference, req, order))
     th.start()
     threads.append(th)
+    time.sleep(request_sleep_time)
 
 for th in threads:
     th.join()
