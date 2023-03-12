@@ -207,13 +207,14 @@ def inceptionv3():
 
 @app.route('/yolo_v5')
 def yolov5():
-    path, im, im0s, vid_cap, s = yolov5_dataset
+    inference_time = 0
+    for path, im, im0s, vid_cap, s in yolov5_dataset:
 
-    inference_start_time = time.time()
-    result = yolo_model(im)
-    inference_end_time = time.time()
+        inference_start_time = time.time()
+        result = yolo_model(im)
+        inference_end_time = time.time()
 
-    inference_time = inference_end_time - inference_start_time
+        inference_time = inference_end_time - inference_start_time
 
     return f'inceptionv3 inference success\ninference time:{inference_time}\n'
 
