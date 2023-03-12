@@ -153,7 +153,7 @@ for path, im, im0s, vid_cap, s in yolov5_dataset:
     # Process predictions
     for i, det in enumerate(pred):  # per image
         seen += 1
-        p, im0, frame = path, im0s.copy(), getattr(dataset, 'frame', 0)
+        p, im0, frame = path, im0s.copy(), getattr(yolov5_dataset, 'frame', 0)
         p = Path(p)  # to Path
 
     # Print time (inference-only)
@@ -214,7 +214,7 @@ def yolov5():
     inference_end_time = time.time()
 
     inference_time = inference_end_time - inference_start_time
-    
+
     return f'inceptionv3 inference success\ninference time:{inference_time}\n'
 
 
