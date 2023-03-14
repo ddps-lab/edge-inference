@@ -99,24 +99,23 @@ def save_model(model, saved_model_dir):
     model.save(saved_model_dir, include_optimizer=False, save_format='tf')
 
 
-#
-# print('\nsaving and loading models...')
-#
+print('\nsaving and loading models...')
+
 loaded_models = {}
-#
-# for model_name in models_to_load:
-#     model_names = models_detail.keys()
-#     if model_name in model_names:
-#         model_path = f'{model_name}_saved_model'
-#         if os.path.isdir(model_path) == False:
-#             print('model save')
-#             save_model(model_name, model_path)
-#         loaded_models[model_name] = tf.keras.models.load_model(model_path)
-#     else:
-#         print(f'model names must be in {model_names}')
-#         exit(1)
-#
-# print('saving and loading models completed!\n')
+
+for model_name in models_to_load:
+    model_names = models_detail.keys()
+    if model_name in model_names:
+        model_path = f'{model_name}_saved_model'
+        if os.path.isdir(model_path) == False:
+            print('model save')
+            save_model(model_name, model_path)
+        loaded_models[model_name] = tf.keras.models.load_model(model_path)
+    else:
+        print(f'model names must be in {model_names}')
+        exit(1)
+
+print('saving and loading models completed!\n')
 
 
 # Yolo v5
