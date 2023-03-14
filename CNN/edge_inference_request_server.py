@@ -140,7 +140,8 @@ yolov5_dataset = LoadImages(yolov5_image_path, img_size=imgsz, stride=stride, au
 # Run inference
 yolo_model.warmup(imgsz=(1 if pt or yolo_model.triton else bs, 3, *imgsz))  # warmup
 seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
-path, im, im0s, vid_cap, s = yolov5_dataset[0]
+ims = [im for path, im, im0s, vid_cap, s in yolov5_dataset]
+im = ims[0]
 
 # for path, im, im0s, vid_cap, s in yolov5_dataset:
 #     with dt[0]:
@@ -215,68 +216,12 @@ def inceptionv3():
 
 @app.route('/yolo_v5')
 def yolov5():
-    # for path, im, im0s, vid_cap, s in yolov5_dataset:
-    #
     inference_start_time = time.time()
     result = yolo_model(im)
     inference_end_time = time.time()
-
     inference_time = inference_end_time - inference_start_time
 
-
-#
-# inference_start_time = time.time()
-# yolov5_image_path = './dataset/imagenet/imagenet_1000_raw/n02782093_1.JPEG'
-# weights = './model/yolov5/yolov5s.pt'
-# data = './model/yolov5/coco128.yaml'  # dataset.yaml path
-# imgsz = (640, 640)  # inference size (height, width)
-# conf_thres = 0.25  # confidence threshold
-# iou_thres = 0.45  # NMS IOU threshold
-# max_det = 1000  # maximum detections per image
-# vid_stride = 1,  # video frame-rate stride
-#
-# yolo_model = DetectMultiBackend(weights, data=data)
-# stride, names, pt = yolo_model.stride, yolo_model.names, yolo_model.pt
-# imgsz = check_img_size(imgsz, s=stride)  # check image size
-#
-# # Dataloader
-# bs = 1  # batch_size
-# yolov5_dataset = LoadImages(yolov5_image_path, img_size=imgsz, stride=stride, auto=pt, vid_stride=vid_stride)
-#
-# # Run inference
-# yolo_model.warmup(imgsz=(1 if pt or yolo_model.triton else bs, 3, *imgsz))  # warmup
-# seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
-# for path, im, im0s, vid_cap, s in yolov5_dataset:
-#     with dt[0]:
-#         im = torch.from_numpy(im).to(yolo_model.device)
-#         im = im.half() if yolo_model.fp16 else im.float()  # uint8 to fp16/32
-#         im /= 255  # 0 - 255 to 0.0 - 1.0
-#         if len(im.shape) == 3:
-#             im = im[None]  # expand for batch dim
-#
-#     # Inference
-#     with dt[1]:
-#         pred = yolo_model(im)
-#
-#     # NMS
-#     with dt[2]:
-#         pred = non_max_suppression(pred, conf_thres, iou_thres, max_det=max_det)
-#
-#     # Process predictions
-#     for i, det in enumerate(pred):  # per image
-#         seen += 1
-#         p, im0, frame = path, im0s.copy(), getattr(yolov5_dataset, 'frame', 0)
-#         p = Path(p)  # to Path
-#
-#     # Print time (inference-only)
-#     LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
-#
-# # Print results
-# t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
-# LOGGER.info(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape {(1, 3, *imgsz)}' % t)
-# inference_end_time = time.time()
-#
-# inference_time = inference_end_time - inference_start_time
     return f'yolov5 inference success\ninference time:{inference_time}\n'
+
 
 app.run(host=hostname, port=port, threaded=False)
