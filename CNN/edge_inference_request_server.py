@@ -143,6 +143,12 @@ seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
 ims = [im for path, im, im0s, vid_cap, s in yolov5_dataset]
 im = ims[0]
 
+im = torch.from_numpy(im).to(yolo_model.device)
+im = im.half() if yolo_model.fp16 else im.float()  # uint8 to fp16/32
+im /= 255  # 0 - 255 to 0.0 - 1.0
+if len(im.shape) == 3:
+    im = im[None]  # expand for batch dim
+
 # for path, im, im0s, vid_cap, s in yolov5_dataset:
 #     with dt[0]:
 #         im = torch.from_numpy(im).to(yolo_model.device)
