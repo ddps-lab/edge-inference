@@ -120,7 +120,7 @@ print('saving and loading models completed!\n')
 
 # Yolo v5
 yolov5_image_path = './dataset/imagenet/imagenet_1000_raw/n02782093_1.JPEG'
-weights = './model/yolov5/yolov5s.pt'
+weights = './model/yolov5/yolov5s_saved_model'
 data = './model/yolov5/coco128.yaml'  # dataset.yaml path
 imgsz = (640, 640)  # inference size (height, width)
 conf_thres = 0.25  # confidence threshold
