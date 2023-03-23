@@ -144,6 +144,7 @@ def model_request(edge, model, order):
     inference_time = res.text.split(':')[1]
     inference_time = inference_time.split('\n')[0]
     inference_time_results[order-1] = float(inference_time)
+    request_time_results[order-1] = float(processing_time)
 
     print(f'[{order}:{edge}({port})/{model}] total request time: {processing_time}\n{res.text}')
     return
@@ -168,6 +169,7 @@ threads = []
 order = 0
 
 inference_time_results = [0 for _ in range(len(requests_list))]
+request_time_results = [0 for _ in range(len(requests_list))]
 request_sleep_time = 1 / len(requests_list)  # 요청들을 1초에 나눠서 보내기 위한 슬립시간
 
 for req in requests_list:
@@ -189,6 +191,8 @@ for th in threads:
 # 추론요청 결과 출력 (최소, 중간, 최대, 평균)
 inference_time_results.sort()
 len_inference_time_results = len(inference_time_results)
+request_time_results.sort()
+len_request_time_results = len(request_time_results)
 
 total_inference_time = sum(inference_time_results)
 avg_inference_time = total_inference_time / len_inference_time_results
@@ -196,9 +200,18 @@ min_inference_time = inference_time_results[0]
 mid_inference_time = inference_time_results[int(len_inference_time_results / 2)]
 max_inference_time = inference_time_results[-1]
 
+total_request_time = sum(request_time_results)
+avg_request_time = total_request_time / len_request_time_results
+min_request_time = request_time_results[0]
+mid_request_time = request_time_results[int(len_request_time_results / 2)]
+max_request_time = request_time_results[-1]
+
 print(f'평균 추론 시간: {avg_inference_time}')
 print(f'최소 추론 시간: {min_inference_time}')
 print(f'중간 추론 시간: {mid_inference_time}')
 print(f'최대 추론 시간: {max_inference_time}\n')
 
-
+print(f'평균 응답 시간: {avg_request_time}')
+print(f'최소 응답 시간: {min_request_time}')
+print(f'중간 응답 시간: {mid_request_time}')
+print(f'최대 응답 시간: {max_request_time}\n')
