@@ -98,9 +98,13 @@ def ModelRequest(model, data):
     res = requests.post(url, data, headers)
     response = json.loads(res.text)['predictions']
 
-    end_time = time.time() - inference_start
+    inference_end = time.time()
+    end_time = inference_end - inference_start
 
-    key = model + " " + str(inference_start)
+    key = model + " " + str(inference_start) + " " + str(inference_end)
+
+    print(key, end_time)
+
     time_tracking[key] = end_time
 
     return response
@@ -109,17 +113,17 @@ def ModelRequest(model, data):
 get_weighted_smooth = roundrobin.smooth(models)
 model_sequence = [get_weighted_smooth() for _ in range(MAX)]
 RoundPerEvent = 10
-TotalEvent = 10
+TotalEvent = 1
 poisson_distribution = random.poisson(RoundPerEvent, TotalEvent)
 
+sleep_val = 1
 if __name__ == "__main__":
     request_start = time.time()
     threads = []
 
     for events in poisson_distribution:
-        print('request', events)
         event_start = time.time()
-
+        print('request', events)
         for model_idx in range(events):
             model = model_sequence[model_idx % len(model_sequence)]
             th = Thread(target=ModelRequest, args=(model, datas[model]))
@@ -130,13 +134,12 @@ if __name__ == "__main__":
             # ModelRequest(model, datas[model])
 
         while True:
-            if time.time() - event_start >=1:
+            if time.time() - event_start >= sleep_val:
                 break
 
     for thread in threads:
         thread.join()
     request_end = time.time() - request_start
-
     print("Return value:", poisson_distribution)
     print("Length of return value:", len(poisson_distribution))
     print("total request time", request_end)
